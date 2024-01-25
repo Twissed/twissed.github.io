@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Tutorial for beam analysis &mdash; twissed 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Useful formulas" href="physics.html" />
+    <link rel="prev" title="Welcome to twissed’s documentation!" href="../index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            twissed
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorial for beam analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">twissed</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Tutorial for beam analysis</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/twissed_beam.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="tutorial-for-beam-analysis">
+<h1>Tutorial for beam analysis<a class="headerlink" href="#tutorial-for-beam-analysis" title="Permalink to this heading">¶</a></h1>
+<div class="cell markdown docutils container">
+<p class="rubric" id="twissed">twissed</p>
+<ul class="simple">
+<li><p>Author: D. Minenna</p></li>
+<li><p>Date: January 2024</p></li>
+</ul>
+<p>Tutorial on using the twissed package. In this notebook, we are
+presenting a number of beam functions from PIC simulations.</p>
+<p class="rubric" id="import">Import</p>
+<p>The import of the package is done by the command:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">twissed</span>
+</pre></div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="c1"># twissed</span>
+<span class="kn">import</span> <span class="nn">twissed</span>
+
+<span class="c1"># Select colormaps</span>
+<span class="n">cm</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">Cmap</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">twissed</span> <span class="p">(</span><span class="n">v2</span><span class="mf">.1.1</span><span class="p">,</span> <span class="mi">2023</span><span class="o">/</span><span class="mi">01</span><span class="o">/</span><span class="mi">25</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p class="rubric" id="starting-with-twissed">Starting with twissed</p>
+<p>For fbpic or smilei simulations, we can check the presence of files
+in the defined directory.</p>
+<ul class="simple">
+<li><p>You must start by initializing a <strong>steps</strong> (plural) object with
+the directory (<code class="docutils literal notranslate"><span class="pre">directory</span></code> argument) of the data and the source.</p></li>
+<li><p>Available sources are:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">fbpic</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">happi</span></code> (for smilei, require happi package for the moment)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">smilei</span></code> (directly read smilei files)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">astra</span></code> (directly read smilei files)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">tracewin</span></code> (directly read smilei files)</p></li>
+</ul>
+</li>
+</ul>
+<p class="rubric" id="note">Note</p>
+<ul class="simple">
+<li><p>The <code class="docutils literal notranslate"><span class="pre">verbose</span></code> argument is available on most of skypiea
+functions.</p></li>
+</ul>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Selection of the directory with data</span>
+<span class="n">directory</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()</span> <span class="o">+</span> <span class="s1">&#39;/data/FBPIC/lab_diags&#39;</span>
+
+<span class="c1"># Find all timesteps</span>
+<span class="n">steps</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">Steps</span><span class="p">()</span>
+<span class="n">steps</span><span class="o">.</span><span class="n">find_data</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">directory</span><span class="p">,</span><span class="n">source</span><span class="o">=</span><span class="s1">&#39;fbpic&#39;</span><span class="p">,</span><span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">c</span><span class="p">:</span>\<span class="n">Minenna</span>\<span class="n">Programmation</span>\<span class="n">Twissed_tutorial</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">FBPIC</span><span class="o">/</span><span class="n">lab_diags</span><span class="o">/</span><span class="n">hdf5</span>
+<span class="n">timesteps</span><span class="p">:</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">13</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">17</span><span class="p">,</span> <span class="mi">18</span><span class="p">,</span> <span class="mi">19</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">21</span><span class="p">,</span> <span class="mi">22</span><span class="p">,</span> <span class="mi">23</span><span class="p">,</span> <span class="mi">24</span><span class="p">,</span> <span class="mi">25</span><span class="p">,</span> <span class="mi">26</span><span class="p">,</span> <span class="mi">27</span><span class="p">,</span> <span class="mi">28</span><span class="p">,</span> <span class="mi">29</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">31</span><span class="p">,</span> <span class="mi">32</span><span class="p">,</span> <span class="mi">33</span><span class="p">,</span> <span class="mi">34</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">36</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p>Now we create the <strong>step</strong> object. It will contain all the
+information about the beam at a given timestep. We can create several
+step objects per species.</p>
+<p class="rubric" id="range-arguments-accepted-for-selection">Range arguments accepted for selection</p>
+<p>It is possible to only select a part of the beam adding a range.</p>
+<ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) - Array of position in x, in m</p></li>
+<li><p><strong>y</strong> (<em>float</em>) - Array of position in y, in m</p></li>
+<li><p><strong>z</strong> (<em>float</em>) - Array of position in z, in m</p></li>
+<li><p><strong>ux</strong> (<em>float</em>) - Normalised momenta x:
+<span class="math notranslate nohighlight">\(u_x = \gamma v_x /c = \gamma beta_x\)</span> of the macro-particle
+of the beam</p></li>
+<li><p><strong>uy</strong> (<em>float</em>) - Normalised momenta y:
+<span class="math notranslate nohighlight">\(u_y = \gamma v_y /c = \gamma beta_y\)</span> of the macro-particle
+of the beam</p></li>
+<li><p><strong>uy</strong> (<em>float</em>) - Normalised momenta z:
+<span class="math notranslate nohighlight">\(u_z = \gamma v_z /c = \gamma beta_z\)</span> of the macro-particle
+of the beam</p></li>
+<li><p><strong>w</strong> (<em>float</em>) - Weighs of the macro-particles in term of
+particles, in number of particles per macro-particles</p></li>
+<li><p><strong>g</strong> (<em>float</em>) - Lorentz factor <span class="math notranslate nohighlight">\(\gamma\)</span> of every single
+macro-particles</p></li>
+<li><p><strong>Ek</strong> (<em>float</em>) - Relativistic kinetic energy of macro-particles</p></li>
+</ul>
+<p>All the above arguments can be added with the ‘_avg’ suffix to force
+the selection to be performed around the mean value.</p>
+<ul class="simple">
+<li><p>Example: <code class="docutils literal notranslate"><span class="pre">g_avg</span></code>.</p></li>
+</ul>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># timestep selection</span>
+<span class="n">timestep</span> <span class="o">=</span> <span class="n">steps</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+<span class="c1"># Creation of the step class</span>
+<span class="n">step</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">Step</span><span class="p">()</span>
+
+<span class="c1"># Read data</span>
+<span class="n">step</span> <span class="o">=</span> <span class="n">steps</span><span class="o">.</span><span class="n">read_beam</span><span class="p">(</span><span class="n">step</span><span class="p">,</span><span class="n">timestep</span><span class="p">,</span><span class="n">species</span><span class="o">=</span><span class="s1">&#39;electrons&#39;</span><span class="p">,</span><span class="n">g</span><span class="o">=</span><span class="p">[</span><span class="mi">10</span><span class="p">,</span><span class="kc">None</span><span class="p">])</span>
+<span class="c1"># g=[10,None] means take only particles from gamma Lorentz between 10 and infinity.</span>
+
+<span class="c1"># Print attributs obtained</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Read</span> <span class="n">file</span> <span class="n">c</span><span class="p">:</span>\<span class="n">Minenna</span>\<span class="n">Programmation</span>\<span class="n">Twissed_tutorial</span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">FBPIC</span><span class="o">/</span><span class="n">lab_diags</span><span class="o">/</span><span class="n">hdf5</span><span class="o">/</span><span class="n">data00000036</span><span class="o">.</span><span class="n">h5</span> <span class="k">for</span> <span class="n">species</span><span class="p">:</span> <span class="n">electrons</span>
+<span class="p">[</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="s1">&#39;dt&#39;</span><span class="p">,</span> <span class="s1">&#39;time&#39;</span><span class="p">,</span> <span class="s1">&#39;timestep&#39;</span><span class="p">,</span> <span class="s1">&#39;timeUnitSI&#39;</span><span class="p">,</span> <span class="s1">&#39;species&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="s1">&#39;ux&#39;</span><span class="p">,</span> <span class="s1">&#39;uy&#39;</span><span class="p">,</span> <span class="s1">&#39;uz&#39;</span><span class="p">,</span> <span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="s1">&#39;y&#39;</span><span class="p">,</span> <span class="s1">&#39;z&#39;</span><span class="p">,</span> <span class="s1">&#39;g&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek&#39;</span><span class="p">,</span> <span class="s1">&#39;g_range&#39;</span><span class="p">,</span> <span class="s1">&#39;vz&#39;</span><span class="p">,</span> <span class="s1">&#39;charge&#39;</span><span class="p">,</span> <span class="s1">&#39;N&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_med&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_std&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_mad&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_std_perc&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_mad_perc&#39;</span><span class="p">,</span> <span class="s1">&#39;g_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;g_med&#39;</span><span class="p">,</span> <span class="s1">&#39;g_std&#39;</span><span class="p">,</span> <span class="s1">&#39;g_mad&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_x&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_y&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_z&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_ux&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_uy&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_uz&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_Ek&#39;</span><span class="p">,</span> <span class="s1">&#39;betaz_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;p&#39;</span><span class="p">,</span> <span class="s1">&#39;p_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;dp&#39;</span><span class="p">,</span> <span class="s1">&#39;dp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_dp&#39;</span><span class="p">,</span> <span class="s1">&#39;xp&#39;</span><span class="p">,</span> <span class="s1">&#39;yp&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_xp&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_yp&#39;</span><span class="p">,</span> <span class="s1">&#39;x_divergence&#39;</span><span class="p">,</span> <span class="s1">&#39;y_divergence&#39;</span><span class="p">,</span> <span class="s1">&#39;x_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;y_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xx_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;yy_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;ux_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;uy_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;uz_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;yp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xpxp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;ypyp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xxp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;yyp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_rms_x&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_rms_y&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_norm_rms_x&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_norm_rms_y&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_x&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_y&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma_x&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma_y&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha_x&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha_y&#39;</span><span class="p">,</span> <span class="s1">&#39;xy_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xyp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;yxp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xpyp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xz_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xdp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;zxp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;xpdp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;yz_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;ydp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;zyp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;ypdp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;zz_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;zdp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;dpdp_avg&#39;</span><span class="p">,</span> <span class="s1">&#39;sigma_matrix&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_rms_z&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_norm_rms_z&#39;</span><span class="p">,</span> <span class="s1">&#39;beta_z&#39;</span><span class="p">,</span> <span class="s1">&#39;gamma_z&#39;</span><span class="p">,</span> <span class="s1">&#39;alpha_z&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_norm_rms_4D&#39;</span><span class="p">,</span> <span class="s1">&#39;emit_norm_rms_6D&#39;</span><span class="p">,</span> <span class="s1">&#39;x_dispersion&#39;</span><span class="p">,</span> <span class="s1">&#39;y_dispersion&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_hist_yaxis&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_hist_xaxis&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_hist_peak&#39;</span><span class="p">,</span> <span class="s1">&#39;Ek_hist_fwhm&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p>These are examples of what you get and what you can do with the step
+class. The default unit is always the same but you can convert it
+with the function</p>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic print</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;N particle: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Positions: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1">####</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+<span class="c1"># Included print (with info)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;emit_norm_rms_y&#39;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;sigma_x&#39;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;dt&#39;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;Ek_std_perc&#39;</span><span class="p">)</span>
+
+<span class="c1">####</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+<span class="c1"># step.convert(&#39;dt&#39;,&#39;fs&#39;) allows to convert units</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convert dt: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;dt&#39;</span><span class="p">,</span><span class="s1">&#39;fs&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> [fs]&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>N particle: 174788
+Positions: [ 1.01072428e-06 -2.84989439e-07 -1.57648345e-07 ...  3.05543405e-05
+  1.50083167e-06  3.47737828e-07]
+
+2.8178741554952444 [pi.mm.mrad], Normalized trace emittance 1-rms $\gamma \beta \epsilon_{yy&#39;}$ in y
+1.792765001973355e-06 [m], RMS size in x.
+108.4155653979033 [pC], Total charge of the beam. For electrons : $Q = (\sum_i w_i e) / 1e-12
+5.92908991305983e-16 [s], Simulation time step.
+3.8751878509786146 [%], Energy spread Ek_std / Ek_avg * 100 of the beam
+
+Convert dt: 0.592908991305983 [fs]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># print beam info</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;beam&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sigma_x</span>     <span class="p">:</span> <span class="mf">1.792765001973355e-06</span> <span class="n">m</span>
+<span class="n">sigma_y</span>     <span class="p">:</span> <span class="mf">4.501721601023872e-06</span> <span class="n">m</span>
+<span class="n">sigma_z</span>     <span class="p">:</span> <span class="mf">3.0266759493841664e-06</span> <span class="n">m</span>
+<span class="n">sigma_xp</span>    <span class="p">:</span> <span class="mf">0.00131400761895321</span> <span class="n">rad</span>
+<span class="n">sigma_yp</span>    <span class="p">:</span> <span class="mf">0.00326590759559804</span> <span class="n">rad</span>
+<span class="n">sigma_dp</span><span class="o">/</span><span class="n">p</span>  <span class="p">:</span> <span class="mf">3.8659310717355657</span> <span class="o">%</span>
+<span class="o">-----------</span>
+<span class="n">eps_N_x</span>     <span class="p">:</span> <span class="mf">0.445346928449047</span> <span class="n">pi</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">mrad</span>
+<span class="n">alpha_x</span>     <span class="p">:</span> <span class="o">-</span><span class="mf">1.9757197169687015</span>
+<span class="n">beta_x</span>      <span class="p">:</span> <span class="mf">0.0030211839750409336</span> <span class="n">mm</span><span class="o">/</span><span class="n">mrad</span>
+<span class="n">gamma_x</span>     <span class="p">:</span> <span class="mf">1623.0287332807827</span> <span class="n">mrad</span><span class="o">/</span><span class="n">mm</span>
+<span class="n">eps_N_y</span>     <span class="p">:</span> <span class="mf">2.8178741554952444</span> <span class="n">pi</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">mrad</span>
+<span class="n">alpha_y</span>     <span class="p">:</span> <span class="o">-</span><span class="mf">1.941822143242106</span>
+<span class="n">beta_y</span>      <span class="p">:</span> <span class="mf">0.003010679851627666</span> <span class="n">mm</span><span class="o">/</span><span class="n">mrad</span>
+<span class="n">gamma_y</span>     <span class="p">:</span> <span class="mf">1584.583373554712</span> <span class="n">mrad</span><span class="o">/</span><span class="n">mm</span>
+<span class="n">eps_N_z</span>     <span class="p">:</span> <span class="mf">4.4989379903438245</span> <span class="n">pi</span><span class="o">.</span><span class="n">mm</span><span class="o">.%</span>
+<span class="n">alpha_z</span>     <span class="p">:</span> <span class="mf">0.4306219931419913</span>
+<span class="n">beta_z</span>      <span class="p">:</span> <span class="mf">0.0008524143402696185</span> <span class="n">mm</span><span class="o">/</span><span class="n">pi</span><span class="o">/%</span>
+<span class="n">gamma_z</span>     <span class="p">:</span> <span class="mf">13906.796788550366</span> <span class="n">mrad</span><span class="o">/</span><span class="n">mm</span>
+<span class="n">eps_4D</span>      <span class="p">:</span> <span class="mf">1.2549315999057593</span> <span class="p">(</span><span class="n">pi</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">mrad</span><span class="p">)</span><span class="mi">2</span>
+<span class="n">eps_6D</span>      <span class="p">:</span> <span class="mf">56.458594500989776</span> <span class="p">(</span><span class="n">pi</span><span class="o">.</span><span class="n">mm</span><span class="o">.</span><span class="n">mrad</span><span class="p">)</span><span class="mi">3</span>
+<span class="o">-----------</span>
+<span class="n">Energy</span> <span class="n">mean</span> <span class="p">:</span> <span class="mf">213.4097256232794</span> <span class="n">MeV</span>
+<span class="n">Energy</span> <span class="n">med</span>  <span class="p">:</span> <span class="mf">212.77201453412792</span> <span class="n">MeV</span>
+<span class="n">Energy</span> <span class="n">std</span>  <span class="p">:</span> <span class="mf">8.270027760160119</span> <span class="n">MeV</span>
+<span class="n">Energy</span> <span class="n">std</span>  <span class="p">:</span> <span class="mf">3.8751878509786146</span> <span class="o">%</span>
+<span class="n">Energy</span> <span class="n">mad</span>  <span class="p">:</span> <span class="mf">5.307834361897779</span> <span class="n">MeV</span>
+<span class="n">Energy</span> <span class="n">mad</span>  <span class="p">:</span> <span class="mf">2.4946111327278992</span> <span class="o">%</span>
+<span class="o">-----------</span>
+<span class="n">Charge</span>      <span class="p">:</span> <span class="mf">108.4155653979033</span> <span class="n">pC</span>
+<span class="n">Nb</span> <span class="n">particle</span> <span class="p">:</span> <span class="mi">174788</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Print sigma beam matrix</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;sigma_matrix&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">x</span> <span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">|</span> <span class="mf">3.21401e-12</span> <span class="mf">2.10182e-09</span> <span class="o">-</span><span class="mf">1.18242e-13</span> <span class="mf">1.20527e-11</span> <span class="mf">1.37587e-13</span> <span class="o">-</span><span class="mf">2.68716e-09</span> <span class="o">|</span>
+<span class="n">x</span><span class="s1">&#39; (rad)| 2.10182e-09 1.72662e-06 2.97261e-11 4.95055e-08 -4.65404e-11 -9.89257e-07 |</span>
+   <span class="n">y</span> <span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">|</span> <span class="o">-</span><span class="mf">1.18242e-13</span> <span class="mf">2.97261e-11</span> <span class="mf">2.02655e-11</span> <span class="mf">1.30708e-08</span> <span class="mf">4.30263e-13</span> <span class="o">-</span><span class="mf">1.80910e-09</span> <span class="o">|</span>
+<span class="n">y</span><span class="s1">&#39; (rad)| 1.20527e-11 4.95055e-08 1.30708e-08 1.06662e-05 1.98567e-10 -2.81583e-06 |</span>
+   <span class="n">z</span> <span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">|</span> <span class="mf">1.37587e-13</span> <span class="o">-</span><span class="mf">4.65404e-11</span> <span class="mf">4.30263e-13</span> <span class="mf">1.98567e-10</span> <span class="mf">9.16077e-12</span> <span class="o">-</span><span class="mf">4.62783e-08</span> <span class="o">|</span>
+    <span class="n">dp</span><span class="o">/</span><span class="n">p</span><span class="o">|</span> <span class="o">-</span><span class="mf">2.68716e-09</span> <span class="o">-</span><span class="mf">9.89257e-07</span> <span class="o">-</span><span class="mf">1.80910e-09</span> <span class="o">-</span><span class="mf">2.81583e-06</span> <span class="o">-</span><span class="mf">4.62783e-08</span> <span class="mf">1.49454e-03</span> <span class="o">|</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create a pandas DataFrame from the step data.</span>
+<span class="n">step</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+</pre></div>
+</div>
+<div class="output execute-result docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>   <span class="n">verbose</span>            <span class="n">dt</span>          <span class="n">time</span>  <span class="n">timestep</span>  <span class="n">timeUnitSI</span>      <span class="n">charge</span>  \
+<span class="mi">0</span>     <span class="kc">True</span>  <span class="mf">5.929090e-16</span>  <span class="mf">2.401661e-11</span>        <span class="mi">36</span>         <span class="mf">1.0</span>  <span class="mf">108.415565</span>
+
+        <span class="n">N</span>      <span class="n">Ek_avg</span>      <span class="n">Ek_med</span>    <span class="n">Ek_std</span>  <span class="o">...</span>  <span class="n">emit_norm_rms_z</span>    <span class="n">beta_z</span>  \
+<span class="mi">0</span>  <span class="mi">174788</span>  <span class="mf">213.409726</span>  <span class="mf">212.772015</span>  <span class="mf">8.270028</span>  <span class="o">...</span>         <span class="mf">4.498938</span>  <span class="mf">0.000852</span>
+
+        <span class="n">gamma_z</span>   <span class="n">alpha_z</span>  <span class="n">emit_norm_rms_4D</span>  <span class="n">emit_norm_rms_6D</span>  <span class="n">x_dispersion</span>  \
+<span class="mi">0</span>  <span class="mf">13906.796789</span>  <span class="mf">0.430622</span>          <span class="mf">1.254932</span>         <span class="mf">56.458595</span>      <span class="mf">0.000995</span>
+
+   <span class="n">y_dispersion</span>  <span class="n">Ek_hist_peak</span>  <span class="n">Ek_hist_fwhm</span>
+<span class="mi">0</span>     <span class="o">-</span><span class="mf">0.001837</span>     <span class="mf">210.37967</span>      <span class="mf">20.04621</span>
+
+<span class="p">[</span><span class="mi">1</span> <span class="n">rows</span> <span class="n">x</span> <span class="mi">82</span> <span class="n">columns</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p class="rubric" id="plotting">Plotting</p>
+<p>You can plot directly from the step class. The processing takes into
+account the weight of each macro-particle.</p>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simple plot of the x distribution (dQ/dx). Note that x axis is convert in um with xconv. step.sigma_x is the standard deviation (bunch length) in x.</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span>
+    <span class="s1">&#39;Ek&#39;</span><span class="p">,</span> <span class="c1"># name</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s2">&quot;GeV&quot;</span><span class="p">,</span> <span class="c1"># (Optional) Unit wanted</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># (Optional) Automatic range : between - 5 sigma and 5 sigma</span>
+    <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+    <span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span> <span class="c1"># (Optional) Type of plot</span>
+    <span class="c1"># linestyle=&#39;--&#39;,</span>
+    <span class="n">fwhm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># (Optional) Add lines corresponding the the FWHM</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/c1aa87667547d975ea038a1cb201c2671b47cd26.png" src="../_images/c1aa87667547d975ea038a1cb201c2671b47cd26.png" />
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Plot = None to only return the histogram data (y,x)</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simple plot of the x distribution (dQ/dx). Note that x axis is convert in um with xconv. step.sigma_x is the standard deviation (bunch length) in x.</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span>
+    <span class="s1">&#39;Ek&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;GeV&#39;</span><span class="p">,</span>
+    <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e6</span><span class="p">],</span> <span class="c1"># (Optional) force the range</span>
+    <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+    <span class="c1"># dx = 1, # Instead of bins</span>
+    <span class="c1"># linestyle=&#39;--&#39;,</span>
+    <span class="n">fwhm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/e0040351b8595852f7609525359e0c4c77418e5e.png" src="../_images/e0040351b8595852f7609525359e0c4c77418e5e.png" />
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p>The <code class="docutils literal notranslate"><span class="pre">hist1D()</span></code> function offer serveral options.</p>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span>
+</pre></div>
+</div>
+<div class="output execute-result docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;function matplotlib.pyplot.figure(num=None, figsize=None, dpi=None, *, facecolor=None, edgecolor=None, frameon=True, FigureClass=&lt;class &#39;matplotlib.figure.Figure&#39;&gt;, clear=False, **kwargs)&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Instead of directly load a figure with matplotlib (plt.figure), we recommand to add</span>
+<span class="c1"># with plt.rc_context(twissed.rcParams):</span>
+<span class="c1"># to load the custom twissed theme.</span>
+
+<span class="c1"># Create the figure</span>
+<span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">twissed</span><span class="o">.</span><span class="n">rcParams</span><span class="p">):</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dQ/dE with various options&quot;</span><span class="p">)</span>
+
+<span class="c1"># First axe</span>
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plot: dx = 1-&gt; $\Delta$E = </span><span class="si">{</span><span class="w"> </span><span class="n">xpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="c1"># Second axe</span>
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s2">&quot;Ek&quot;</span><span class="p">,</span><span class="n">yname</span> <span class="o">=</span> <span class="s1">&#39;current&#39;</span><span class="p">,</span><span class="n">yconv</span><span class="o">=</span><span class="s2">&quot;mA&quot;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;step&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">yconv</span><span class="o">=</span><span class="s2">&quot;C&quot;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">xconv</span><span class="o">=</span><span class="s2">&quot;um&quot;</span><span class="p">,</span><span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;pink&#39;</span><span class="p">,</span><span class="n">linestyle</span><span class="o">=</span><span class="s2">&quot;-.&quot;</span><span class="p">,</span><span class="n">fwhm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span><span class="n">yname</span><span class="o">=</span><span class="s2">&quot;y&quot;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;lineplot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">fwhm</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;z&#39;</span><span class="p">,</span><span class="n">yname</span><span class="o">=</span><span class="s2">&quot;Ek&quot;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;histplot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/c30853bd91802a00da6b239eb5e301b4232e8075.png" src="../_images/c30853bd91802a00da6b239eb5e301b4232e8075.png" />
+</div>
+</div>
+<div class="cell markdown docutils container">
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">hist2D()</span></code> can also be used with serveral options.</p></li>
+</ul>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 2D plot of the beam</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span> <span class="c1"># If suffix _avg added, will plot around the average value</span>
+    <span class="s1">&#39;Ek&#39;</span><span class="p">,</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="c1"># Force range between +- 5 sigma</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/79f9ccfa14d8863894db9132e97ba6441951affc.png" src="../_images/79f9ccfa14d8863894db9132e97ba6441951affc.png" />
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xp&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span> <span class="c1"># SI units for conversion in the x axis</span>
+    <span class="n">yconv</span><span class="o">=</span><span class="s1">&#39;mrad&#39;</span><span class="p">,</span> <span class="c1"># SI units for conversion in the y axis</span>
+    <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span> <span class="o">/</span> <span class="n">twissed</span><span class="o">.</span><span class="n">micro</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span> <span class="o">/</span> <span class="n">twissed</span><span class="o">.</span><span class="n">micro</span><span class="p">],</span> <span class="c1"># Range in x</span>
+    <span class="n">yrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_xp</span> <span class="o">/</span> <span class="n">twissed</span><span class="o">.</span><span class="n">milli</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_xp</span> <span class="o">/</span> <span class="n">twissed</span><span class="o">.</span><span class="n">milli</span><span class="p">],</span> <span class="c1"># Range in y</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/dfadab352467622e4efa0b7e5c5404eca4e4e644.png" src="../_images/dfadab352467622e4efa0b7e5c5404eca4e4e644.png" />
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">twissed</span><span class="o">.</span><span class="n">rcParams</span><span class="p">):</span> <span class="c1"># Figure formatting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">12</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Beam energy with various options&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Ek_avg&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="n">cm</span><span class="o">.</span><span class="n">magma</span><span class="p">,</span>
+    <span class="n">marginals_color</span> <span class="o">=</span> <span class="s2">&quot;white&quot;</span><span class="p">,</span>
+    <span class="n">emit_color</span> <span class="o">=</span> <span class="s1">&#39;white&#39;</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pcolormesh example 1&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Ek_avg&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">marginals_step</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">set_yticks</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;PiYG&quot;</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+    <span class="n">emit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">grid</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pcolormesh example 2&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span><span class="s1">&#39;z_avg&#39;</span><span class="p">,</span><span class="s1">&#39;Ek_avg&#39;</span><span class="p">,</span><span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;scatter&#39;</span><span class="p">,</span><span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;jet&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span><span class="n">size</span><span class="o">=</span><span class="mi">12</span><span class="p">,</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span><span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">marginals_step</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;scatter (experimental)&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Ek_avg&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+    <span class="n">plot</span><span class="o">=</span><span class="s1">&#39;contourf&#39;</span><span class="p">,</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">marginals_plot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+    <span class="n">emit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">panel_text</span><span class="o">=</span><span class="s2">&quot;(b)&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;contourf&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;Ek_avg&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">],</span>
+    <span class="n">shading</span><span class="o">=</span><span class="s1">&#39;gouraud&#39;</span><span class="p">,</span>
+    <span class="n">marginals_bar</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;pcolormesh with shading gouraud&quot;</span><span class="p">)</span>
+
+<span class="n">ax</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;y&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span>
+    <span class="n">yconv</span><span class="o">=</span><span class="s1">&#39;mm&#39;</span><span class="p">,</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">],</span>
+    <span class="c1"># shading=&#39;gouraud&#39;,</span>
+    <span class="c1"># marginals_bar = True,</span>
+    <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/af7eede7d7ff0f9b3036cd5e0192cb83e9b065ca.png" src="../_images/af7eede7d7ff0f9b3036cd5e0192cb83e9b065ca.png" />
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p>The <code class="docutils literal notranslate"><span class="pre">plotbeam</span></code> function is a good trade-off.</p>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">plot_beam</span><span class="p">(</span>
+    <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="c1"># xrange=[-3*step.sigma_x*1e6,3*step.sigma_x*1e6],</span>
+    <span class="c1"># xprange=[-3*step.sigma_xp*1e3,3*step.sigma_xp*1e3],</span>
+    <span class="c1"># yrange=[-5*step.sigma_y*1e6,5*step.sigma_y*1e6],</span>
+    <span class="c1"># yprange=[-6*step.sigma_yp*1e3,6*step.sigma_yp*1e3],</span>
+    <span class="c1"># zrange=[-10,10],</span>
+    <span class="c1"># energyrange=[150,300],</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/411304ebb8101d30d70945f643be78dac4bfd9f1.png" src="../_images/411304ebb8101d30d70945f643be78dac4bfd9f1.png" />
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">plot_emit</span><span class="p">(</span><span class="s1">&#39;y&#39;</span><span class="p">,</span><span class="s1">&#39;yp&#39;</span><span class="p">,</span><span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span><span class="n">yconv</span><span class="o">=</span><span class="s1">&#39;mrad&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/e075555c7afa2098c396243171aca353f236da20.png" src="../_images/e075555c7afa2098c396243171aca353f236da20.png" />
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;sigma_dp&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output stream stdout docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="mf">0.038659310717355656</span> <span class="p">[</span><span class="o">%</span><span class="p">],</span> <span class="n">Standard</span> <span class="n">deviation</span> <span class="p">(</span><span class="n">std</span><span class="p">)</span> <span class="n">of</span> <span class="n">the</span> <span class="n">particle</span> <span class="n">momenta</span> <span class="n">variation</span> <span class="ow">in</span> <span class="n">percentage</span><span class="o">.</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+  <span class="s1">&#39;z_avg&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;dp&#39;</span><span class="p">,</span>
+  <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+  <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+  <span class="n">marginals_plot</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+  <span class="n">plot</span><span class="o">=</span><span class="s1">&#39;contourf&#39;</span><span class="p">,</span>
+  <span class="n">emit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+  <span class="n">iscbar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/453b699126c86065093293c94de98f5e977014a6.png" src="../_images/453b699126c86065093293c94de98f5e977014a6.png" />
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p class="rubric" id="beam-rotation">Beam rotation</p>
+<p>One can rotate the beam. For instance to reduce the <span class="math notranslate nohighlight">\(y\)</span>
+emittance (but increase the <span class="math notranslate nohighlight">\(x\)</span> emittance), we can rotate the
+beam. At 45°, both emittances are about the same.</p>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">angle</span> <span class="o">=</span> <span class="mi">45</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="mi">180</span> <span class="c1"># en radian</span>
+
+<span class="n">step_new</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">rotationXY</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="c1"># Create a new Step class</span>
+
+<span class="n">_</span> <span class="o">=</span> <span class="n">step_new</span><span class="o">.</span><span class="n">plot_beam</span><span class="p">(</span>
+  <span class="n">range_auto</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/91a469dd7536813b59edd6db68892495204ff79c.png" src="../_images/91a469dd7536813b59edd6db68892495204ff79c.png" />
+</div>
+</div>
+<div class="cell markdown docutils container">
+<p class="rubric" id="re-use-the-data-for-other-plots">Re-use the data for other plots</p>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span>
+    <span class="s1">&#39;Ek&#39;</span><span class="p">,</span>
+    <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">twissed</span><span class="o">.</span><span class="n">rcParams</span><span class="p">):</span> <span class="c1"># Figure formatting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xpos</span><span class="p">,</span><span class="n">H</span><span class="p">)</span>
+<span class="c1"># same plot but with x=2x</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xpos</span><span class="o">*</span><span class="mi">2</span><span class="p">,</span><span class="n">H</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output execute-result docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="o">&lt;</span><span class="n">matplotlib</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">Line2D</span> <span class="n">at</span> <span class="mh">0x1b02d7d02e0</span><span class="o">&gt;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/95e1bf179b8df8d66d0f104dfdea32042fb05bac.png" src="../_images/95e1bf179b8df8d66d0f104dfdea32042fb05bac.png" />
+</div>
+</div>
+<div class="cell code docutils container">
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">H</span><span class="p">,</span> <span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;y&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+    <span class="n">yconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+    <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e6</span><span class="p">],</span>
+    <span class="n">yrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_y</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_y</span><span class="o">*</span><span class="mf">1e6</span><span class="p">],</span>
+    <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">20</span><span class="p">,</span><span class="mi">20</span><span class="p">],</span>
+    <span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="c1"># Only return the H, xpos, ypos values without plotting anything.</span>
+<span class="p">)</span>
+
+
+<span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">rc_context</span><span class="p">(</span><span class="n">twissed</span><span class="o">.</span><span class="n">rcParams</span><span class="p">):</span> <span class="c1"># Figure formatting</span>
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span><span class="p">)</span>
+<span class="n">g</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">contourf</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="n">Y</span><span class="p">,</span><span class="n">H</span><span class="p">,</span><span class="mi">6</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">clabel</span><span class="p">(</span><span class="n">g</span><span class="p">,</span><span class="n">inline</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="output execute-result docutils container">
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="n">a</span> <span class="nb">list</span> <span class="n">of</span> <span class="mi">7</span> <span class="n">text</span><span class="o">.</span><span class="n">Text</span> <span class="n">objects</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="output display-data docutils container">
+<img alt="../_images/db66f639d3a7a3ffab2ebc0f6863ece57693c01a.png" src="../_images/db66f639d3a7a3ffab2ebc0f6863ece57693c01a.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../index.html" class="btn btn-neutral float-left" title="Welcome to twissed’s documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="physics.html" class="btn btn-neutral float-right" title="Useful formulas" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

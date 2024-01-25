@@ -25,7 +25,7 @@ Twissed can read and write data from several sources
 -  `Smilei <https://smileipic.github.io/Smilei/>`__
 -  `Smilei via happi package <https://smileipic.github.io/Smilei/>`__
 -  `TraceWin <https://dacm-logiciels.fr/>`__
--  `Astra <>`__
+-  `Astra`
 
 Installation
 ------------
@@ -102,6 +102,7 @@ Contents
    :maxdepth: 2
    :caption: Contents:
 
+   pages/twissed_beam
    pages/physics
    pages/stepclass
    pages/plotstepclass
