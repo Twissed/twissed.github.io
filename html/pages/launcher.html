@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automatic launchers and runs &mdash; twissed 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="No weight methods" href="noweight.html" />
+    <link rel="prev" title="Read and write data" href="io.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            twissed
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Read and write data</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Automatic launchers and runs</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#run-class">Run class</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Run"><code class="docutils literal notranslate"><span class="pre">Run()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#get-data-from-run">Get data from Run</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#twissed.getdatafromrun"><code class="docutils literal notranslate"><span class="pre">getdatafromrun()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#classic-launcher">Classic launcher</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Launcher"><code class="docutils literal notranslate"><span class="pre">Launcher()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#genetic-algorithm-launcher">Genetic Algorithm launcher</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.LauncherGA"><code class="docutils literal notranslate"><span class="pre">LauncherGA()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">twissed</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Automatic launchers and runs</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/launcher.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="automatic-launchers-and-runs">
+<h1>Automatic launchers and runs<a class="headerlink" href="#automatic-launchers-and-runs" title="Permalink to this heading">¶</a></h1>
+<section id="run-class">
+<h2>Run class<a class="headerlink" href="#run-class" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Run">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">Run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">projectname</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">directory</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/mnt/c/Minenna/Programmation/Twissed/doc/source'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twissed/launcher/launcher.html#Run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.Run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run class.</p>
+<p>Create a run from given scripts. The run will be created in the folder <cite>/directory/Run_id</cite>.</p>
+<p>Main function are <cite>addfile</cite> and <cite>save</cite>.
+Each script added with <cite>addfile</cite> will be save in a pandas dataframe named <cite>df_ini_id.csv</cite>.</p>
+<section id="usage">
+<h3>Usage<a class="headerlink" href="#usage" title="Permalink to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initiate new run</span>
+<span class="n">run</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">Run</span><span class="p">(</span><span class="s1">&#39;twissed Run&#39;</span><span class="p">,</span>
+                <span class="n">directory</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
+                <span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+                <span class="c1"># Add to dict:</span>
+                <span class="n">author</span><span class="o">=</span><span class="s1">&#39;Damien&#39;</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s1">&#39;Run for test&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add file to run</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;run.sh&quot;</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;run_fbpic_topaze.sh&quot;</span><span class="p">)</span>
+<span class="n">run</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">filepath</span><span class="p">,</span>
+            <span class="c1"># Add to dict:</span>
+            <span class="n">accronyme</span><span class="o">=</span><span class="s2">&quot;Skytest&quot;</span><span class="p">,</span>
+            <span class="n">slurm_n_core</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span>
+            <span class="n">slurm_T_cputime</span><span class="o">=</span><span class="mi">84000</span><span class="p">,</span>
+            <span class="n">scriptpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="n">folderpath</span><span class="p">,</span> <span class="s2">&quot;script_fbpic.py&quot;</span><span class="p">))</span>
+
+<span class="c1"># Add file to run</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;script_fbpic.py&quot;</span>
+<span class="n">filepath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="s2">&quot;script_fbpic.py&quot;</span><span class="p">)</span>
+<span class="n">run</span><span class="o">.</span><span class="n">addfile</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span>
+            <span class="n">filepath</span><span class="p">,</span>
+            <span class="c1"># Add to dict:</span>
+            <span class="n">a0</span> <span class="o">=</span> <span class="mf">1.3</span><span class="p">,</span>
+            <span class="n">w0</span> <span class="o">=</span> <span class="mf">20.9e-6</span><span class="p">,</span>
+            <span class="n">taua</span> <span class="o">=</span> <span class="mf">2.5e-14</span><span class="p">,</span>
+            <span class="n">zfoc</span> <span class="o">=</span> <span class="mf">3.6e-03</span><span class="p">,</span>
+            <span class="n">z0</span> <span class="o">=</span> <span class="o">-</span><span class="mf">30.6</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">,</span>
+            <span class="p">)</span>
+
+<span class="c1"># Create df_ini_00000000.csv file</span>
+<span class="n">run</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</dd></dl>
+
+<section id="get-data-from-run">
+<h3>Get data from Run<a class="headerlink" href="#get-data-from-run" title="Permalink to this heading">¶</a></h3>
+<p>Read data from run</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.getdatafromrun">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">getdatafromrun</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'/mnt/c/Minenna/Programmation/Twissed/doc/source'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timestep</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">species</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'electrons'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../_modules/twissed/launcher/launcher.html#getdatafromrun"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.getdatafromrun" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create df_end_id.csv file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> (<em>str</em><em>, </em><em>optional</em>) – Path to run. Defaults to os.getcwd().</p></li>
+<li><p><strong>timestep</strong> (<em>int</em><em>, </em><em>optional</em>) – Step time wanted. Defaults to -1 (last one).</p></li>
+<li><p><strong>source</strong> (<em>str</em><em>, </em><em>optional</em>) – Set the source of the simulation. If None, will try to find the source from the df_ini_***.csv file. Defaults to None.</p></li>
+<li><p><strong>species</strong> (<em>str</em><em>, </em><em>optional</em>) – Name of the beam species. Defaults to “electrons”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Pandas dataframe with the dict from Step.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+<section id="classic-launcher">
+<h2>Classic launcher<a class="headerlink" href="#classic-launcher" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Launcher">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">Launcher</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twissed/launcher/launcher.html#Launcher"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.Launcher" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main launcher class</p>
+</dd></dl>
+
+</section>
+<section id="genetic-algorithm-launcher">
+<h2>Genetic Algorithm launcher<a class="headerlink" href="#genetic-algorithm-launcher" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.LauncherGA">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">LauncherGA</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">FIRSTID</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">POP_SIZE</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nInputs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'/mnt/c/Minenna/Programmation/Twissed/doc/source'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twissed/launcher/launcher.html#LauncherGA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.LauncherGA" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launcher for genetic algorithm</p>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="io.html" class="btn btn-neutral float-left" title="Read and write data" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="noweight.html" class="btn btn-neutral float-right" title="No weight methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Step class &mdash; twissed 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Plotting with the Step class" href="plotstepclass.html" />
+    <link rel="prev" title="Useful formulas" href="physics.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            twissed
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Twissed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="physics.html">Useful formulas</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Step class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#metadata">Metadata</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.utils.metadata.MetaData.__setattr__"><code class="docutils literal notranslate"><span class="pre">__setattr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#introduction-ot-step">Introduction ot Step</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step"><code class="docutils literal notranslate"><span class="pre">Step()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#functions">Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step.copy"><code class="docutils literal notranslate"><span class="pre">copy()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#beam-functions">Beam functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step.set_new_6D_beam"><code class="docutils literal notranslate"><span class="pre">set_new_6D_beam()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step.get_beam"><code class="docutils literal notranslate"><span class="pre">get_beam()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step.rotationXY"><code class="docutils literal notranslate"><span class="pre">rotationXY()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">twissed</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Step class</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/stepclass.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="step-class">
+<h1>Step class<a class="headerlink" href="#step-class" title="Permalink to this heading">¶</a></h1>
+<section id="metadata">
+<h2>Metadata<a class="headerlink" href="#metadata" title="Permalink to this heading">¶</a></h2>
+<p>All the major classes are children of the MetaData class that is used to set metadata to the classes attributes.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.utils.metadata.MetaData.__setattr__">
+<span class="sig-prename descclassname"><span class="pre">twissed.utils.metadata.MetaData.</span></span><span class="sig-name descname"><span class="pre">__setattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Type</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#twissed.utils.metadata.MetaData.__setattr__" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set attribute for the MetaData object</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">a</span> <span class="o">=</span> <span class="n">MetaData</span><span class="p">()</span>
+
+<span class="n">a</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="mi">12</span> <span class="c1"># x is known in the database</span>
+<span class="n">a</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="mi">12</span> <span class="c1"># y is known in the database</span>
+<span class="n">a</span><span class="o">.</span><span class="n">tmp</span> <span class="o">=</span> <span class="mi">12</span> <span class="c1"># tmp is not known in the database</span>
+<span class="n">a</span><span class="o">.</span><span class="n">pos</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="mi">14</span><span class="p">,</span>
+        <span class="p">{</span>
+        <span class="s1">&#39;name_latex&#39;</span><span class="p">:</span> <span class="s1">&#39;$x$&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;info&#39;</span><span class="p">:</span> <span class="s1">&#39;Positions x of the macro-particle of the beam.&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;np.ndarray&#39;</span>
+        <span class="p">}</span>
+        <span class="p">)</span> <span class="c1"># Create an attribute pos = 14, with metadata defined by the dictionnary.</span>
+
+<span class="n">a</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="p">(</span><span class="mi">13</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;units&#39;</span><span class="p">:</span> <span class="s1">&#39;mm&#39;</span><span class="p">,</span> <span class="s1">&#39;new&#39;</span><span class="p">:</span> <span class="s1">&#39;temporary&#39;</span><span class="p">})</span> <span class="c1"># Update the metadata of x</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">_data</span><span class="p">)</span> <span class="c1"># print metadata</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Name of the attribute</p></li>
+<li><p><strong>value</strong> (<em>Type</em><em>[</em><em>Any</em><em>  |  </em><em>Tuple</em><em>[</em><em>Any</em><em>  |  </em><em>Dict</em><em>]</em><em>]</em>) – The value of the attribute. This argument can be a tuple with the wanted value and metadata for the attribute</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>KeyError</strong> – Some attributes are reserved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="introduction-ot-step">
+<h2>Introduction ot Step<a class="headerlink" href="#introduction-ot-step" title="Permalink to this heading">¶</a></h2>
+<p>The main class is the <code class="docutils literal notranslate"><span class="pre">skypiea.Step</span></code> class.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">Step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twissed/step/step.html#Step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.Step" title="Permalink to this definition">¶</a></dt>
+<dd><p>Main Class for simulation parameters. Include beam, laser and plasma parameters at a given timestep.</p>
+<p class="rubric">Examples</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1">#Creation of the step class</span>
+<span class="n">step</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">Step</span><span class="p">()</span>
+
+<span class="c1"># Read data</span>
+<span class="n">step</span> <span class="o">=</span> <span class="n">steps</span><span class="o">.</span><span class="n">read_beam</span><span class="p">(</span><span class="n">step</span><span class="p">,</span><span class="n">timestep</span><span class="p">,</span><span class="n">species</span><span class="o">=</span><span class="s1">&#39;electrons&#39;</span><span class="p">,</span><span class="n">g</span><span class="o">=</span><span class="p">[</span><span class="mf">10.</span><span class="p">,</span><span class="kc">None</span><span class="p">])</span>
+
+<span class="c1"># Examples</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;N particle: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Positions </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="si">}</span><span class="s2"> [m]&quot;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;emit_norm_rms_y&#39;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;charge&#39;</span><span class="p">)</span>
+<span class="n">step</span><span class="o">.</span><span class="n">print</span><span class="p">(</span><span class="s1">&#39;dt&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Convert dt: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">convert</span><span class="p">(</span><span class="s1">&#39;dt&#39;</span><span class="p">,</span><span class="s1">&#39;ps&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> [ps]&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">read_dst</span><span class="p">(</span><span class="s2">&quot;treacewin.dst&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<section id="main-keys">
+<h3>Main keys<a class="headerlink" href="#main-keys" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) - Array of position in x, in m</p></li>
+<li><p><strong>y</strong> (<em>float</em>) - Array of position in y, in m</p></li>
+<li><p><strong>z</strong> (<em>float</em>) - Array of position in z, in m</p></li>
+<li><p><strong>ux</strong> (<em>float</em>) - Normalised momenta x <span class="math notranslate nohighlight">\(u_x = \gamma v_x /c = \gamma beta_x\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>uy</strong> (<em>float</em>) - Normalised momenta y <span class="math notranslate nohighlight">\(u_y = \gamma v_y /c = \gamma beta_y\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>uy</strong> (<em>float</em>) - Normalised momenta z <span class="math notranslate nohighlight">\(u_z = \gamma v_z /c = \gamma beta_z\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>w</strong> (<em>float</em>) - Weighs of the macro-particles in term of particles, in number of particles per macro-particles’</p></li>
+<li><p><strong>g</strong> (<em>float</em>) - Lorentz factor of every single macro-particles</p></li>
+<li><p><strong>Ek</strong> (<em>float</em>) - Relativistic kinetic energy of macro-particles</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Keys are only available if defined from read or set functions.</p>
+</div>
+</section>
+</dd></dl>
+
+</section>
+<section id="functions">
+<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step.copy">
+<span class="sig-prename descclassname"><span class="pre">twissed.Step.</span></span><span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Step</span></span></span><a class="headerlink" href="#twissed.Step.copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create copy of Step class</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>copy of Step class</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Step</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="beam-functions">
+<h2>Beam functions<a class="headerlink" href="#beam-functions" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step.set_new_6D_beam">
+<span class="sig-prename descclassname"><span class="pre">twissed.Step.</span></span><span class="sig-name descname"><span class="pre">set_new_6D_beam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">y</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ux</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uz</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#twissed.Step.set_new_6D_beam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set position and momenta of the beam</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>np.ndarray</em>) – Positions x of the macro-particle of the beam in m</p></li>
+<li><p><strong>y</strong> (<em>np.ndarray</em>) – Positions y of the macro-particle of the beam in m</p></li>
+<li><p><strong>z</strong> (<em>np.ndarray</em>) – Positions z of the macro-particle of the beam in m</p></li>
+<li><p><strong>ux</strong> (<em>np.ndarray</em>) – Normalised momenta x <span class="math notranslate nohighlight">\(u_x = \gamma v_x /c = \gamma beta_x\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>uy</strong> (<em>np.ndarray</em>) – Normalised momenta y <span class="math notranslate nohighlight">\(u_y = \gamma v_y /c = \gamma beta_y\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>uz</strong> (<em>np.ndarray</em>) – Normalised momenta z <span class="math notranslate nohighlight">\(u_z = \gamma v_z /c = \gamma beta_z\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>w</strong> (<em>np.ndarray</em>) – Weighs of the macro-particles in term of number of particles</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step.get_beam">
+<span class="sig-prename descclassname"><span class="pre">twissed.Step.</span></span><span class="sig-name descname"><span class="pre">get_beam</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#twissed.Step.get_beam" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate all the beam data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span><span class="o">.</span><span class="n">get_beam</span><span class="p">(</span><span class="n">x</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">12</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">,</span><span class="mi">12</span><span class="o">*</span><span class="mf">1e-6</span><span class="p">],</span> <span class="n">g</span><span class="o">=</span><span class="p">[</span><span class="mi">200</span><span class="p">,</span><span class="kc">None</span><span class="p">],</span><span class="n">Ek_avg</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">50</span><span class="p">,</span><span class="mi">50</span><span class="p">])</span>
+</pre></div>
+</div>
+<section id="range-arguments-accepted-for-selection">
+<h3>Range arguments accepted for selection<a class="headerlink" href="#range-arguments-accepted-for-selection" title="Permalink to this heading">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>x</strong> (<em>float</em>) - Array of position in x, in m</p></li>
+<li><p><strong>y</strong> (<em>float</em>) - Array of position in y, in m</p></li>
+<li><p><strong>z</strong> (<em>float</em>) - Array of position in z, in m</p></li>
+<li><p><strong>ux</strong> (<em>float</em>) - Normalised momenta x <span class="math notranslate nohighlight">\(u_x = \gamma v_x /c = \gamma beta_x\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>uy</strong> (<em>float</em>) - Normalised momenta y <span class="math notranslate nohighlight">\(u_y = \gamma v_y /c = \gamma beta_y\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>uy</strong> (<em>float</em>) - Normalised momenta z <span class="math notranslate nohighlight">\(u_z = \gamma v_z /c = \gamma beta_z\)</span> of the macro-particle of the beam</p></li>
+<li><p><strong>w</strong> (<em>float</em>) - Weighs of the macro-particles in term of particles, in number of particles per macro-particles</p></li>
+<li><p><strong>g</strong> (<em>float</em>) - Lorentz factor of every single macro-particles</p></li>
+<li><p><strong>Ek</strong> (<em>float</em>) - Relativistic kinetic energy of macro-particles</p></li>
+</ul>
+</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<ul class="simple">
+<li><p>All the above arguments can be added with the ‘_avg’ suffix to force the selection to be performed around the mean value.</p></li>
+<li><p>Variables self.w, self.ux, self.uy, self.uz, self.x, self.y and self.z must have be defined.</p></li>
+</ul>
+</div>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step.rotationXY">
+<span class="sig-prename descclassname"><span class="pre">twissed.Step.</span></span><span class="sig-name descname"><span class="pre">rotationXY</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">angle</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Step</span></span></span><a class="headerlink" href="#twissed.Step.rotationXY" title="Permalink to this definition">¶</a></dt>
+<dd><p>Counterclockwise rotate the x-y plan to a given angle</p>
+<p class="rubric">Example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># 90 degree rotation of the beam</span>
+<span class="n">step_new</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">rotationXY</span><span class="p">(</span><span class="mi">90</span><span class="o">*</span><span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">/</span><span class="mi">180</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>angle</strong> (<em>float</em>) – Angle of the counterclockwise rotation, in rad</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New step class</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>step</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="physics.html" class="btn btn-neutral float-left" title="Useful formulas" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="plotstepclass.html" class="btn btn-neutral float-right" title="Plotting with the Step class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

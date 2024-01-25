@@ -1,0 +1,29 @@
+﻿skypiea.colormap
+================
+
+.. automodule:: skypiea.colormap
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cmap
+   
+   
+
+   
+   
+   
+
+
+

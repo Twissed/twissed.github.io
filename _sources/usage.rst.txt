@@ -1,0 +1,6 @@
+Usage
+=====
+
+The main class is the ``skypiea.Step`` class.
+
+.. autofunction:: skypiea.Step

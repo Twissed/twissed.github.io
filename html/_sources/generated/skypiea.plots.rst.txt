@@ -1,0 +1,34 @@
+﻿skypiea.plots
+=============
+
+.. automodule:: skypiea.plots
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      fmt
+      plotEz_beam
+      plot_density
+      plotbeam
+      plotdensitylas
+      plotxy_beam
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

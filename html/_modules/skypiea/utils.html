@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>skypiea.utils &mdash; skypiea 1.38 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            skypiea
+          </a>
+              <div class="version">
+                1.38
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">skypiea</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">skypiea.utils</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for skypiea.utils</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python package for beam dynamics analysis in laser-plasma acceleration</span>
+<span class="sd">Author: D. Minenna</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;WARNING: matplotlib package not found&quot;</span><span class="p">)</span>
+
+<span class="c1"># TODO: Add error weighted_mad, weighted_std, ...</span>
+
+
+<div class="viewcode-block" id="weighted_ave"><a class="viewcode-back" href="../../pages/physics.html#skypiea.weighted_ave">[docs]</a><span class="k">def</span> <span class="nf">weighted_ave</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">weights</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the weighted average of array a.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \langle {\bf a} \rangle = \frac{\sum_i w_i a_i}{\sum_i w_i} \, ,</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        arr (float): 1D numpy array</span>
+<span class="sd">        weights (float): 1D numpy array</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: weighted average.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check arrays size</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">)):</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ERROR: data and weights do not have the same length!&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Check if input contains data</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">a</span><span class="p">):</span>
+        <span class="c1"># If input is empty return empty</span>
+        <span class="k">return</span> <span class="n">empty</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Calculate the weighted average</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="weighted_std"><a class="viewcode-back" href="../../pages/physics.html#skypiea.weighted_std">[docs]</a><span class="k">def</span> <span class="nf">weighted_std</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">empty</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate the weighted standard deviation.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        arr (float): 1D numpy array</span>
+<span class="sd">        weights (float): 1D numpy array</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: weighted average.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Check arrays size</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">arr</span><span class="p">))</span> <span class="o">!=</span> <span class="n">np</span><span class="o">.</span><span class="n">shape</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;ERROR: data and weights do not have the same length!&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Check if input contains data</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">arr</span><span class="p">):</span>
+            <span class="c1"># If input is empty return empty</span>
+            <span class="k">return</span> <span class="n">empty</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Calculate the weighted standard deviation</span>
+            <span class="n">average</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+            <span class="n">variance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">((</span><span class="n">arr</span> <span class="o">-</span> <span class="n">average</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">weights</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span>
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error weighted_std&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="weighted_med"><a class="viewcode-back" href="../../pages/physics.html#skypiea.weighted_med">[docs]</a><span class="k">def</span> <span class="nf">weighted_med</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the weighted median</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a (float): 1D numpy array</span>
+<span class="sd">        weights (float): 1D numpy array</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: median</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">quantile</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">matrix</span><span class="p">):</span>
+            <span class="n">weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">shape</span> <span class="o">!=</span> <span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s2">&quot;the length of data and weights must be the same&quot;</span><span class="p">)</span>
+        <span class="n">ind_sorted</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
+        <span class="n">sorted_data</span> <span class="o">=</span> <span class="n">a</span><span class="p">[</span><span class="n">ind_sorted</span><span class="p">]</span>
+        <span class="n">sorted_weights</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">ind_sorted</span><span class="p">]</span>
+
+        <span class="n">Sn</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">sorted_weights</span><span class="p">)</span>
+        <span class="c1"># Center and normalize the cumsum (i.e. divide by the total sum)</span>
+        <span class="n">Pn</span> <span class="o">=</span> <span class="p">(</span><span class="n">Sn</span> <span class="o">-</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">sorted_weights</span><span class="p">)</span> <span class="o">/</span> <span class="n">Sn</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="c1"># Get the value of the weighted median</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">quantile</span><span class="p">,</span> <span class="n">Pn</span><span class="p">,</span> <span class="n">sorted_data</span><span class="p">)</span>
+
+    <span class="k">except</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;error weighted_med&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="mi">1</span></div>
+
+
+<div class="viewcode-block" id="weighted_mad"><a class="viewcode-back" href="../../pages/physics.html#skypiea.weighted_mad">[docs]</a><span class="k">def</span> <span class="nf">weighted_mad</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the weighted median absolute</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        a (float): 1D numpy array</span>
+<span class="sd">        weights (float): 1D numpy array</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: median</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">med</span> <span class="o">=</span> <span class="n">weighted_med</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">w</span><span class="p">)</span>
+    <span class="n">mad</span> <span class="o">=</span> <span class="n">weighted_med</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">med</span><span class="p">),</span> <span class="n">w</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mad</span></div>
+
+
+<span class="k">def</span> <span class="nf">hist1D_weights</span><span class="p">(</span><span class="n">xplotdata</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="n">xname</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">xname</span><span class="p">:</span> <span class="n">xplotdata</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="n">H</span><span class="p">,</span> <span class="n">xedges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span>
+    <span class="p">)</span>
+
+    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="mf">1e12</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plot</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">6</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">plot</span> <span class="o">==</span> <span class="s2">&quot;plot&quot;</span><span class="p">:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">xedges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">H</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">plot</span> <span class="o">==</span> <span class="s2">&quot;hist&quot;</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="n">H</span><span class="p">,</span> <span class="n">xedges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">hist2D_weights</span><span class="p">(</span>
+    <span class="n">xplotdata</span><span class="p">,</span>
+    <span class="n">yplotdata</span><span class="p">,</span>
+    <span class="n">w</span><span class="p">,</span>
+    <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="n">yrange</span><span class="o">=</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="n">bins</span><span class="o">=</span><span class="p">[</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">],</span>
+    <span class="n">ax</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;inferno&quot;</span><span class="p">,</span>
+    <span class="n">iscbar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">):</span>
+    <span class="n">xname</span> <span class="o">=</span> <span class="s2">&quot;x&quot;</span>
+    <span class="n">yname</span> <span class="o">=</span> <span class="s2">&quot;y&quot;</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="n">xname</span><span class="p">:</span> <span class="n">xplotdata</span><span class="p">,</span> <span class="n">yname</span><span class="p">:</span> <span class="n">yplotdata</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">:</span> <span class="n">w</span><span class="p">})</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">xrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">yrange</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">yname</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">yrange</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">yrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="n">yname</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">yrange</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+    <span class="n">H</span><span class="p">,</span> <span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">histogram2d</span><span class="p">(</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">xname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">df</span><span class="p">[</span><span class="n">yname</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+        <span class="n">bins</span><span class="o">=</span><span class="p">(</span><span class="n">bins</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="n">weights</span><span class="o">=</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;w&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">xedges</span><span class="p">,</span> <span class="n">yedges</span><span class="p">)</span>
+    <span class="n">H</span> <span class="o">=</span> <span class="n">H</span><span class="o">.</span><span class="n">T</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">*</span> <span class="mf">1e12</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">ax</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">g</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">pcolormesh</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">H</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="n">cmap</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">iscbar</span><span class="p">:</span>
+            <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">g</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">pad</span><span class="o">=-</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="s2">&quot;pC&quot;</span><span class="p">,</span> <span class="n">xy</span><span class="o">=</span><span class="p">(</span><span class="mf">1.09</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">xycoords</span><span class="o">=</span><span class="s2">&quot;axes fraction&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;black&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">H</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">xedges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">yedges</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="laser_strength"><a class="viewcode-back" href="../../pages/physics.html#skypiea.laser_strength">[docs]</a><span class="k">def</span> <span class="nf">laser_strength</span><span class="p">(</span><span class="n">I0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">normalised</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Laser strength parameter :math:`a_0`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        a_0 = \sqrt{\frac{e^2}{2 \pi^2 \epsilon_0 m_e^2 c^5} \lambda_0 I_0}</span>
+
+<span class="sd">    or if :code:`normalised == True`:</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        a_0 = 0.855 \lambda_0 [\mu \mathrm{m}] \sqrt{I_0 [10^{18} \mathrm{W/cm}^2]}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        I0 (float): Maximum intensity</span>
+<span class="sd">        lambda0 (float): Wavelength</span>
+<span class="sd">        normalised (bool): Normalised equation. Default to False.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Laser strength parameter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">normalised</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+            <span class="o">/</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span><span class="o">**</span><span class="mi">2</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">**</span><span class="mi">5</span><span class="p">)</span>
+            <span class="o">*</span> <span class="n">lambda0</span>
+            <span class="o">*</span> <span class="n">I0</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.855</span> <span class="o">*</span> <span class="n">lambda0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">I0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="critical_density"><a class="viewcode-back" href="../../pages/physics.html#skypiea.critical_density">[docs]</a><span class="k">def</span> <span class="nf">critical_density</span><span class="p">(</span><span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Laser critical density :math:`n_{\mathrm{c}}`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        n_{\mathrm{c}} = \frac{m_e \epsilon_0 \omega_0^2}{e^2}</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        lambda0 (float): Wavelength</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Laser critical density</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">const</span><span class="o">.</span><span class="n">m_e</span>
+        <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span>
+        <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="o">**</span><span class="mi">2</span>
+        <span class="o">*</span> <span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="n">lambda0</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="accelerating_electric_field"><a class="viewcode-back" href="../../pages/physics.html#skypiea.accelerating_electric_field">[docs]</a><span class="k">def</span> <span class="nf">accelerating_electric_field</span><span class="p">(</span><span class="n">ne</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the Rayleigh length :math:`z_{\rm R}`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        E_{\rm max} = \frac{m_e c \omega_{\rm pe}}{e}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ne (float): Plasma density in m-3</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Maximum accelerating electric field</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span> <span class="o">*</span> <span class="n">plasma_frequency</span><span class="p">(</span><span class="n">ne</span><span class="p">)</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span></div>
+
+
+<div class="viewcode-block" id="Rayleigh_length"><a class="viewcode-back" href="../../pages/physics.html#skypiea.Rayleigh_length">[docs]</a><span class="k">def</span> <span class="nf">Rayleigh_length</span><span class="p">(</span><span class="n">w0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the Rayleigh length :math:`z_{\rm R}`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        z_{\rm R} = \frac{\pi w_0^2}{\lambda_0}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        w0 (float): Maximum waist</span>
+<span class="sd">        lambda0 (float): Wavelength</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Rayleigh length</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">w0</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">lambda0</span></div>
+
+
+<div class="viewcode-block" id="waist0_theory"><a class="viewcode-back" href="../../pages/physics.html#skypiea.waist0_theory">[docs]</a><span class="k">def</span> <span class="nf">waist0_theory</span><span class="p">(</span><span class="n">z</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">w0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lambda0</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">zfoc</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the theoretical waist over :math:`z`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        w(z) = w_0 \sqrt{1 + \left( \frac{z - z_{\rm foc}}{z_{\rm R}} \right)^2}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        z (array of float): Positions in z</span>
+<span class="sd">        w0 (float): Maximum waist</span>
+<span class="sd">        zfoc (float): Z focal position. Default to 0.</span>
+<span class="sd">        lambda0 (float): Wavelength</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Theoretical waist</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">zr</span> <span class="o">=</span> <span class="n">Rayleigh_length</span><span class="p">(</span><span class="n">w0</span><span class="p">,</span> <span class="n">lambda0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">w0</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="p">((</span><span class="n">z</span> <span class="o">-</span> <span class="n">zfoc</span><span class="p">)</span> <span class="o">/</span> <span class="n">zr</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="plasma_frequency"><a class="viewcode-back" href="../../pages/physics.html#skypiea.plasma_frequency">[docs]</a><span class="k">def</span> <span class="nf">plasma_frequency</span><span class="p">(</span><span class="n">ne</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sa">r</span><span class="sd">&quot;&quot;&quot;Return the theoretical waist over :math:`z`.</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \omega_{\rm pe} = \sqrt{\frac{n_{\rm e} e^2}{m_{\rm e} \epsilon_0}}</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        ne (float): Plasma density in m-3</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Plasma frequency in rad/s.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">ne</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">epsilon_0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert_laser_FWHM_duration"><a class="viewcode-back" href="../../pages/physics.html#skypiea.convert_laser_FWHM_duration">[docs]</a><span class="k">def</span> <span class="nf">convert_laser_FWHM_duration</span><span class="p">(</span>
+    <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">convert</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fbpic_to_FWHM_duration&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;_summary_</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        t (float): time to convert.</span>
+<span class="sd">        convert (str, optional): Type of conversion.</span>
+<span class="sd">            Chose between [&quot;fbpic_to_FWHM_duration&quot;, &quot;FWHM_duration_to_fbpic&quot;, &quot;smilei_to_FWHM_duration&quot;, &quot;FWHM_duration_to_smilei&quot;]. Defaults to &quot;fbpic_to_FWHM_duration&quot;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        float: Converted time</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">convert</span> <span class="o">==</span> <span class="s2">&quot;fbpic_to_FWHM_duration&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">elif</span> <span class="n">convert</span> <span class="o">==</span> <span class="s2">&quot;FWHM_duration_to_fbpic&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">log</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">convert</span> <span class="o">==</span> <span class="s2">&quot;smilei_to_FWHM_duration&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">t</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">convert</span> <span class="o">==</span> <span class="s2">&quot;FWHM_duration_to_smilei&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">t</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

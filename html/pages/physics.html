@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Useful formulas &mdash; twissed 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Step class" href="stepclass.html" />
+    <link rel="prev" title="Twissed" href="installation.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            twissed
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Twissed</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Useful formulas</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#statistics">Statistics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.weighted_avg"><code class="docutils literal notranslate"><span class="pre">weighted_avg()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.weighted_std"><code class="docutils literal notranslate"><span class="pre">weighted_std()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.weighted_med"><code class="docutils literal notranslate"><span class="pre">weighted_med()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.weighted_mad"><code class="docutils literal notranslate"><span class="pre">weighted_mad()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#physics">Physics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.laser_strength"><code class="docutils literal notranslate"><span class="pre">laser_strength()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.critical_density"><code class="docutils literal notranslate"><span class="pre">critical_density()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Rayleigh_length"><code class="docutils literal notranslate"><span class="pre">Rayleigh_length()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.accelerating_electric_field"><code class="docutils literal notranslate"><span class="pre">accelerating_electric_field()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.waist0_theory"><code class="docutils literal notranslate"><span class="pre">waist0_theory()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.plasma_frequency"><code class="docutils literal notranslate"><span class="pre">plasma_frequency()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#helpful">Helpful</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.convert_laser_duration_FWHM"><code class="docutils literal notranslate"><span class="pre">convert_laser_duration_FWHM()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">twissed</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Useful formulas</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/physics.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="useful-formulas">
+<h1>Useful formulas<a class="headerlink" href="#useful-formulas" title="Permalink to this heading">¶</a></h1>
+<section id="statistics">
+<h2>Statistics<a class="headerlink" href="#statistics" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.weighted_avg">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">weighted_avg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/twissed/utils/stats.html#weighted_avg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.weighted_avg" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the weighted average of array a.</p>
+<div class="math notranslate nohighlight">
+\[\langle {\bf a} \rangle = \frac{\sum_i w_i a_i}{\sum_i w_i} \, ,\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – 1D numpy array</p></li>
+<li><p><strong>weights</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – 1D numpy array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>weighted average.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[float, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.weighted_std">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">weighted_std</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/twissed/utils/stats.html#weighted_std"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.weighted_std" title="Permalink to this definition">¶</a></dt>
+<dd><p>Calculate the weighted standard deviation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>arr</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – 1D numpy array</p></li>
+<li><p><strong>weights</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – 1D numpy array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>weighted standard deviation.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[float, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.weighted_med">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">weighted_med</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">arr</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/twissed/utils/stats.html#weighted_med"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.weighted_med" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the weighted median</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – 1D numpy array</p></li>
+<li><p><strong>weights</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – 1D numpy array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>weighted median</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[float, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.weighted_mad">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">weighted_mad</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/twissed/utils/stats.html#weighted_mad"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.weighted_mad" title="Permalink to this definition">¶</a></dt>
+<dd><p>Compute the weighted median absolute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a</strong> (<em>float</em>) – 1D numpy array</p></li>
+<li><p><strong>weights</strong> (<em>float</em>) – 1D numpy array</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>median</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="physics">
+<h2>Physics<a class="headerlink" href="#physics" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.laser_strength">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">laser_strength</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">I0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalised</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#laser_strength"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.laser_strength" title="Permalink to this definition">¶</a></dt>
+<dd><p>Laser strength parameter <span class="math notranslate nohighlight">\(a_0\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[a_0 = \sqrt{\frac{e^2}{2 \pi^2 \epsilon_0 m_e^2 c^5} \lambda_0 I_0}\]</div>
+<p>or if <code class="code docutils literal notranslate"><span class="pre">normalised</span> <span class="pre">==</span> <span class="pre">True</span></code>:</p>
+<div class="math notranslate nohighlight">
+\[a_0 = 0.855 \lambda_0 [\mu \mathrm{m}] \sqrt{I_0 [10^{18} \mathrm{W/cm}^2]}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>I0</strong> (<em>float</em>) – Maximum intensity</p></li>
+<li><p><strong>lambda0</strong> (<em>float</em>) – Wavelength</p></li>
+<li><p><strong>normalised</strong> (<em>bool</em>) – Normalised equation. Default to False.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Laser strength parameter</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.critical_density">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">critical_density</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lambda0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#critical_density"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.critical_density" title="Permalink to this definition">¶</a></dt>
+<dd><p>Laser critical density <span class="math notranslate nohighlight">\(n_{\mathrm{c}}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[n_{\mathrm{c}} = \frac{m_e \epsilon_0 \omega_0^2}{e^2}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>lambda0</strong> (<em>float</em>) – Wavelength</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Laser critical density</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Rayleigh_length">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">Rayleigh_length</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">w0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#Rayleigh_length"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.Rayleigh_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the Rayleigh length <span class="math notranslate nohighlight">\(z_{\rm R}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[z_{\rm R} = \frac{\pi w_0^2}{\lambda_0}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>w0</strong> (<em>float</em>) – Maximum waist</p></li>
+<li><p><strong>lambda0</strong> (<em>float</em>) – Wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rayleigh length</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.accelerating_electric_field">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">accelerating_electric_field</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ne</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#accelerating_electric_field"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.accelerating_electric_field" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the maximum accelerating electric field (a.k.a the wavebreaking field or space charge field) <span class="math notranslate nohighlight">\(E_{\rm max}\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[E_{\rm max} = \frac{m_e c \omega_{\rm pe}}{e}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ne</strong> (<em>float</em>) – Plasma density in m-3</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Maximum accelerating electric field in V/m</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.waist0_theory">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">waist0_theory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">z</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">w0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lambda0</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zfoc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">ndarray</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#waist0_theory"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.waist0_theory" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the theoretical waist over <span class="math notranslate nohighlight">\(z\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[w(z) = w_0 \sqrt{1 + \left( \frac{z - z_{\rm foc}}{z_{\rm R}} \right)^2}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>z</strong> (<em>Union</em><em>[</em><em>float</em><em>, </em><em>np.ndarray</em><em>]</em>) – Positions in z</p></li>
+<li><p><strong>w0</strong> (<em>float</em>) – Maximum waist</p></li>
+<li><p><strong>zfoc</strong> (<em>float</em>) – Z focal position. Default to 0.</p></li>
+<li><p><strong>lambda0</strong> (<em>float</em>) – Laser wavelength</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Theoretical waist</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Union[float, np.ndarray]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.plasma_frequency">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">plasma_frequency</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ne</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#plasma_frequency"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.plasma_frequency" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the theoretical waist over <span class="math notranslate nohighlight">\(z\)</span>.</p>
+<div class="math notranslate nohighlight">
+\[\omega_{\rm pe} = \sqrt{\frac{n_{\rm e} e^2}{m_{\rm e} \epsilon_0}}\]</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ne</strong> (<em>float</em>) – Plasma density in m-3</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Plasma frequency in rad/s.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="helpful">
+<h2>Helpful<a class="headerlink" href="#helpful" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.convert_laser_duration_FWHM">
+<span class="sig-prename descclassname"><span class="pre">twissed.</span></span><span class="sig-name descname"><span class="pre">convert_laser_duration_FWHM</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">t</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">convert</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'fbpic_to_FWHM'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/twissed/utils/physics.html#convert_laser_duration_FWHM"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#twissed.convert_laser_duration_FWHM" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert laser FWHM duration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>t</strong> (<em>float</em>) – time to convert.</p></li>
+<li><p><strong>convert</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of conversion.
+Chose between “fbpic_to_FWHM”, “FWHM_to_fbpic”, “smilei_to_FWHM” or “FWHM_to_smilei”. Defaults to “fbpic_to_FWHM”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Converted time</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="installation.html" class="btn btn-neutral float-left" title="Twissed" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="stepclass.html" class="btn btn-neutral float-right" title="Step class" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

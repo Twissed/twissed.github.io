@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>skypiea.noweight &mdash; skypiea 1.35 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            skypiea
+          </a>
+              <div class="version">
+                1.35
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/physics.html">Useful formula</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../pages/todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">skypiea</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">skypiea.noweight</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for skypiea.noweight</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python package for beam dynamics analysis in laser-plasma acceleration</span>
+<span class="sd">Author: D. Minenna</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">stat</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="c1"># skypiea</span>
+<span class="kn">from</span> <span class="nn">.units</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">.step</span> <span class="kn">import</span> <span class="o">*</span>
+
+
+<div class="viewcode-block" id="noweight_method_zero"><a class="viewcode-back" href="../../pages/noweight.html#skypiea.noweight_method_zero">[docs]</a><span class="k">def</span> <span class="nf">noweight_method_zero</span><span class="p">(</span><span class="n">step</span><span class="p">,</span><span class="n">weight_norm</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove weight of the distribution. Zero method.</span>
+<span class="sd">    </span>
+<span class="sd">    Use</span>
+<span class="sd">    ---</span>
+<span class="sd">    </span>
+<span class="sd">    * Define a new weight `weight_norm`.</span>
+<span class="sd">    * For each particle.</span>
+<span class="sd">        * if w &gt; weight_norm</span>
+<span class="sd">            * Create N new particles with same position and momenta.</span>
+<span class="sd">            with `N = int(np.floor(w/weight_norm))` </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        step (Step class): Step class</span>
+<span class="sd">        weight_norm (float, optional): New weight. Defaults to 1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Step class: A new Step class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">x_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">z_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ux_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uy_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uz_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">w_new</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">weight_norm</span><span class="p">:</span>
+            <span class="n">w_t</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_t</span><span class="o">/</span><span class="n">weight_norm</span><span class="p">))</span> 
+            
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                <span class="n">w_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight_norm</span><span class="p">)</span>
+                <span class="n">x_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">y_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">z_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">ux_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">uy_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">uz_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+    
+     
+    <span class="n">step_new</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+       
+    <span class="n">step_new</span><span class="o">.</span><span class="n">setpositionsmomenta</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">,</span> <span class="n">z_new</span><span class="p">,</span> <span class="n">ux_new</span><span class="p">,</span> <span class="n">uy_new</span><span class="p">,</span> <span class="n">uz_new</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">)))</span>
+    
+    <span class="n">step_new</span><span class="o">.</span><span class="n">getbeam</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>  
+    
+    <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>                
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nparticle obtained: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emittance x - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emittance y - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy mean - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Charge - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">, Saved: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e12</span><span class="w"> </span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    
+    
+    <span class="c1"># w = np.floor(step.w / weight_norm).astype(int)</span>
+
+    <span class="c1"># N = np.sum(w)</span>
+    <span class="c1"># N_old = np.size(step.w)</span>
+    <span class="c1"># ratio = N_old / N</span>
+    
+    <span class="c1"># if verbose == True:</span>
+    <span class="c1">#     print(f&quot;Nparticle asked: {N} from {N_old} original particles with a {ratio*100}% selection&quot;)</span>
+    <span class="c1">#     print(f&quot;charge expected {np.sum(w * weight_norm) * const.e * 1e12} pC, weight to reach {np.mean(w)}&quot;)</span>
+
+    <span class="c1"># </span>
+    
+    <span class="c1"># x_new = []</span>
+    <span class="c1"># y_new = []</span>
+    <span class="c1"># z_new = []</span>
+    <span class="c1"># ux_new = []</span>
+    <span class="c1"># uy_new = []</span>
+    <span class="c1"># uz_new = []</span>
+    <span class="c1"># w_new = []</span>
+
+    <span class="c1"># for i in range(np.size(w)):</span>
+        
+    <span class="c1">#     # Number of particles per macro-particle</span>
+    <span class="c1">#     Npart = w[i]</span>
+        
+    <span class="c1">#     for j in range(Npart):</span>
+    <span class="c1">#         if random.random() &lt; ratio:</span>
+    <span class="c1">#             x_new.append(step.x[i])</span>
+    <span class="c1">#             y_new.append(step.y[i])</span>
+    <span class="c1">#             z_new.append(step.z[i])</span>
+    <span class="c1">#             ux_new.append(step.ux[i])</span>
+    <span class="c1">#             uy_new.append(step.uy[i])</span>
+    <span class="c1">#             uz_new.append(step.uz[i])</span>
+    <span class="c1">#             w_new.append(1.)</span>
+     
+    <span class="c1"># w_new = np.array(w_new) * step.charge / np.size(w_new) / const.e / 1e12 </span>
+                
+
+    <span class="k">return</span> <span class="n">step_new</span></div>
+
+
+<div class="viewcode-block" id="noweight_method_zero_bis"><a class="viewcode-back" href="../../pages/noweight.html#skypiea.noweight_method_zero_bis">[docs]</a><span class="k">def</span> <span class="nf">noweight_method_zero_bis</span><span class="p">(</span><span class="n">step</span><span class="p">,</span><span class="n">weight_norm</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove weight of the distribution. Zero method with random for ratio.</span>
+<span class="sd">    </span>
+<span class="sd">    Might create more weight than original distribution.</span>
+<span class="sd">    </span>
+<span class="sd">    Use</span>
+<span class="sd">    ---</span>
+<span class="sd">    </span>
+<span class="sd">    * Define a new weight `weight_norm`.</span>
+<span class="sd">    * For each particle.</span>
+<span class="sd">        * if w &gt; weight_norm</span>
+<span class="sd">            * Create N new particles with same position and momenta.</span>
+<span class="sd">            with `N = int(np.floor(w/weight_norm))` </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        step (Step class): Step class</span>
+<span class="sd">        weight_norm (float, optional): New weight. Defaults to 1.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Step class: A new Step class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">x_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">z_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ux_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uy_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uz_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">w_new</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">w_t</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+        <span class="n">N_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_t</span><span class="o">/</span><span class="n">weight_norm</span><span class="p">))</span> 
+        
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_int</span><span class="p">):</span>
+            <span class="n">w_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight_norm</span><span class="p">)</span>
+            <span class="n">x_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">y_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">z_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">ux_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">uy_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">uz_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            
+        <span class="n">N_rat</span> <span class="o">=</span> <span class="p">(</span><span class="n">w_t</span><span class="o">/</span><span class="n">weight_norm</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_t</span><span class="o">/</span><span class="n">weight_norm</span><span class="p">)</span>
+        
+        <span class="k">if</span> <span class="n">N_rat</span> <span class="o">&gt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">():</span>
+            <span class="n">w_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight_norm</span><span class="p">)</span>
+            <span class="n">x_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">y_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">z_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">ux_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">uy_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            <span class="n">uz_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+            
+    
+     
+    <span class="n">step_new</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+       
+    <span class="n">step_new</span><span class="o">.</span><span class="n">setpositionsmomenta</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">,</span> <span class="n">z_new</span><span class="p">,</span> <span class="n">ux_new</span><span class="p">,</span> <span class="n">uy_new</span><span class="p">,</span> <span class="n">uz_new</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">)))</span>
+    
+    <span class="n">step_new</span><span class="o">.</span><span class="n">getbeam</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>  
+    
+    <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>                
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nparticle obtained: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emittance x - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emittance y - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy mean - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Charge - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">, Saved: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e12</span><span class="w"> </span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">step_new</span></div>
+
+
+<div class="viewcode-block" id="noweight_matsigma"><a class="viewcode-back" href="../../pages/noweight.html#skypiea.noweight_matsigma">[docs]</a><span class="k">def</span> <span class="nf">noweight_matsigma</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">N</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove weight of the distribution. Method with tranfer matrice.</span>
+<span class="sd">    </span>
+<span class="sd">    Use</span>
+<span class="sd">    ---</span>
+<span class="sd">    ...</span>
+
+<span class="sd">    .. math::</span>
+
+<span class="sd">        \sigma = \begin{vmatrix}</span>
+<span class="sd">        \langle x  \cdot x \rangle &amp; \langle x  \cdot x&#39; \rangle &amp; \langle x  \cdot y \rangle &amp; \langle x  \cdot y&#39; \rangle &amp; \langle x  \cdot z \rangle &amp; \langle x  \cdot z&#39; \rangle  \\</span>
+<span class="sd">        \langle x&#39; \cdot x \rangle &amp; \langle x&#39; \cdot x&#39; \rangle &amp; \langle x&#39; \cdot y \rangle &amp; \langle x&#39; \cdot y&#39; \rangle &amp; \langle x&#39; \cdot z \rangle &amp; \langle x&#39; \cdot z&#39; \rangle \\</span>
+<span class="sd">        \langle y  \cdot x \rangle &amp; \langle y  \cdot x&#39; \rangle &amp; \langle y  \cdot y \rangle &amp; \langle y  \cdot y&#39; \rangle &amp; \langle y  \cdot z \rangle &amp; \langle y  \cdot z&#39; \rangle  \\</span>
+<span class="sd">        \langle y&#39; \cdot x \rangle &amp; \langle y&#39; \cdot x&#39; \rangle &amp; \langle y&#39; \cdot y \rangle &amp; \langle y&#39; \cdot y&#39; \rangle &amp; \langle y&#39; \cdot z \rangle &amp; \langle y&#39; \cdot z&#39; \rangle \\</span>
+<span class="sd">        \langle z  \cdot x \rangle &amp; \langle z  \cdot x&#39; \rangle &amp; \langle z  \cdot y \rangle &amp; \langle z  \cdot y&#39; \rangle &amp; \langle z  \cdot z \rangle &amp; \langle z  \cdot z&#39; \rangle  \\</span>
+<span class="sd">        \langle z&#39; \cdot x \rangle &amp; \langle z&#39; \cdot x&#39; \rangle &amp; \langle z&#39; \cdot y \rangle &amp; \langle z&#39; \cdot y&#39; \rangle &amp; \langle z&#39; \cdot z \rangle &amp; \langle z&#39; \cdot z&#39; \rangle </span>
+<span class="sd">        \end{vmatrix}</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        step (Step class): Orignial Step class</span>
+<span class="sd">        N (int): Approximate number of particle wanted.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    
+    <span class="n">wtot</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+    
+    <span class="c1"># Normalisation de la distribution 6D</span>
+    <span class="n">Part_pt</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span>  <span class="o">-</span> <span class="n">step</span><span class="o">.</span><span class="n">x_ave</span> <span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span> <span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">)),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span>  <span class="o">-</span> <span class="n">step</span><span class="o">.</span><span class="n">y_ave</span> <span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_y</span> <span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">)),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span>  <span class="o">-</span> <span class="n">step</span><span class="o">.</span><span class="n">z_ave</span> <span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_z</span> <span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">)),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span> <span class="o">-</span> <span class="n">step</span><span class="o">.</span><span class="n">ux_ave</span><span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_ux</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">)),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span> <span class="o">-</span> <span class="n">step</span><span class="o">.</span><span class="n">uy_ave</span><span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_uy</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">)),</span>
+                          <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span> <span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span> <span class="o">-</span> <span class="n">step</span><span class="o">.</span><span class="n">uz_ave</span><span class="p">)</span><span class="o">/</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_uz</span><span class="p">,(</span><span class="mi">1</span><span class="p">,</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">))),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    
+    <span class="c1"># Calcul de la matrice Sigma de la distribution 6D</span>
+    <span class="n">sig</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">6</span><span class="p">):</span>
+            <span class="n">sig</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="o">*</span><span class="n">Part_pt</span><span class="p">[</span><span class="n">i</span><span class="p">,:]</span><span class="o">*</span><span class="n">Part_pt</span><span class="p">[</span><span class="n">j</span><span class="p">,:])</span><span class="o">/</span><span class="n">wtot</span>
+            
+    <span class="c1"># Recherche de la matrice de transfert qui transforme la matrice sigma en l&#39;identit</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span><span class="mi">6</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">6</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="n">i</span><span class="p">):</span>
+            <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">*</span><span class="n">T</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">j</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span><span class="o">/</span><span class="n">T</span><span class="p">[</span><span class="n">j</span><span class="p">,</span><span class="n">j</span><span class="p">]</span>
+        
+        <span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">sig</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="n">i</span><span class="p">]</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">T</span><span class="p">[</span><span class="n">i</span><span class="p">,</span><span class="mi">0</span><span class="p">:</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+     
+    <span class="c1"># Decouplage de la distribution des particules </span>
+    <span class="n">Part_pt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Part_pt</span><span class="p">)</span>
+    <span class="n">Part_pt2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">inv</span><span class="p">(</span><span class="n">T</span><span class="p">),</span> <span class="n">Part_pt</span><span class="p">)</span>
+    
+    <span class="c1"># Tirage de la distribution equi-poids</span>
+    <span class="n">pt_norm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">)</span>
+    <span class="n">pt_norm</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span> <span class="o">/</span> <span class="n">wtot</span> <span class="o">*</span> <span class="n">N</span> <span class="c1"># Nombre de particules de poids identiques par particule initiale</span>
+    <span class="n">dist</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="o">**</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="o">/</span><span class="mi">6</span><span class="p">)</span><span class="o">/</span><span class="mi">3</span>
+    <span class="n">Part2</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="mi">6</span><span class="p">,</span><span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mf">2.</span><span class="o">*</span><span class="n">N</span><span class="p">))))</span> <span class="c1"># 2 * N particles for buffer</span>
+    
+    <span class="c1">#  Generation de la distribution equi-poids</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+        
+        <span class="k">if</span> <span class="n">pt_norm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Si plus d&#39;une particule de m�me poids pour une particule initiale</span>
+            
+            <span class="n">np_macro</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">pt_norm</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="p">(</span><span class="n">pt_norm</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">-</span><span class="n">np_macro</span><span class="p">):</span>
+                <span class="n">np_macro</span> <span class="o">=</span> <span class="n">np_macro</span><span class="o">+</span><span class="mi">1</span>
+            
+            <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">np_macro</span><span class="p">):</span>
+                <span class="n">Part2</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Part_pt2</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="mi">6</span><span class="p">,)</span> <span class="o">*</span> <span class="n">dist</span>
+                <span class="n">j</span> <span class="o">=</span> <span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+            
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1">#  Si plus d&#39;une particule de m�me poids pour une particule initiale</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&lt;=</span> <span class="n">pt_norm</span><span class="p">[</span><span class="n">i</span><span class="p">]:</span>  
+                <span class="n">Part2</span><span class="p">[:,</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">Part_pt2</span><span class="p">[:,</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">j</span><span class="o">=</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span>
+
+    <span class="n">N_new</span> <span class="o">=</span> <span class="n">j</span>
+    
+    <span class="c1"># New particles</span>
+    <span class="n">Part</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="n">Part2</span><span class="p">[:,</span><span class="mi">0</span><span class="p">:</span><span class="n">N_new</span><span class="p">])</span>
+    
+    <span class="c1"># Denormalisation</span>
+    <span class="n">Part</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span>  <span class="o">*</span> <span class="n">Part</span><span class="p">[</span><span class="mi">0</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">x_ave</span>
+    <span class="n">Part</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sigma_y</span>  <span class="o">*</span> <span class="n">Part</span><span class="p">[</span><span class="mi">1</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">y_ave</span>
+    <span class="n">Part</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sigma_z</span>  <span class="o">*</span> <span class="n">Part</span><span class="p">[</span><span class="mi">2</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">z_ave</span>
+    <span class="n">Part</span><span class="p">[</span><span class="mi">3</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sigma_ux</span> <span class="o">*</span> <span class="n">Part</span><span class="p">[</span><span class="mi">3</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">ux_ave</span>
+    <span class="n">Part</span><span class="p">[</span><span class="mi">4</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sigma_uy</span> <span class="o">*</span> <span class="n">Part</span><span class="p">[</span><span class="mi">4</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">uy_ave</span>
+    <span class="n">Part</span><span class="p">[</span><span class="mi">5</span><span class="p">,:]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">sigma_uz</span> <span class="o">*</span> <span class="n">Part</span><span class="p">[</span><span class="mi">5</span><span class="p">,:]</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">uz_ave</span>
+    
+         
+    <span class="n">step_new</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+        
+    <span class="n">step_new</span><span class="o">.</span><span class="n">setpositionsmomenta</span><span class="p">(</span><span class="n">Part</span><span class="p">[</span><span class="mi">0</span><span class="p">,:],</span> 
+                                <span class="n">Part</span><span class="p">[</span><span class="mi">1</span><span class="p">,:],</span>
+                                <span class="n">Part</span><span class="p">[</span><span class="mi">2</span><span class="p">,:],</span>
+                                <span class="n">Part</span><span class="p">[</span><span class="mi">3</span><span class="p">,:],</span>
+                                <span class="n">Part</span><span class="p">[</span><span class="mi">4</span><span class="p">,:],</span>
+                                <span class="n">Part</span><span class="p">[</span><span class="mi">5</span><span class="p">,:],</span>
+                                <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N_new</span><span class="p">)</span> <span class="o">*</span> <span class="n">wtot</span> <span class="o">/</span> <span class="n">N_new</span><span class="p">)</span>
+
+    <span class="n">step_new</span><span class="o">.</span><span class="n">getbeam</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>  
+    
+    <span class="k">if</span> <span class="n">verbose</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>                
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nparticle obtained: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emittance x - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Emittance y - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy mean - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Charge - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        
+    <span class="k">return</span> <span class="n">step_new</span></div>
+
+
+
+<span class="k">def</span> <span class="nf">noweight_coalescence</span><span class="p">(</span><span class="n">step</span><span class="p">,</span><span class="n">weight_norm</span> <span class="o">=</span> <span class="mf">1.</span><span class="p">,</span><span class="n">Ne</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">7</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span><span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    </span>
+<span class="sd">    - 6D grid. Maillage fin au debut, puis lache</span>
+<span class="sd">    - Creation d&#39;au moins 2 particules par cell dont une avec weight_norm. Merging et slitting</span>
+<span class="sd">    - Barycentre de la cellule.</span>
+<span class="sd">    - Momenta lié à l&#39;emmitance</span>
+<span class="sd">    </span>
+<span class="sd">    </span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        step (_type_): _description_</span>
+<span class="sd">        weight_norm (_type_, optional): _description_. Defaults to 1..</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    
+    <span class="n">N</span> <span class="o">=</span> <span class="p">[</span><span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="o">**</span><span class="n">x</span><span class="p">,</span><span class="mi">2</span><span class="o">**</span><span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">Ne</span><span class="p">]</span>
+    <span class="n">dx</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">dy</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">))</span><span class="o">/</span><span class="n">N</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">dz</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">))</span><span class="o">/</span><span class="n">N</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">dux</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">))</span><span class="o">/</span><span class="n">N</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">duy</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">))</span><span class="o">/</span><span class="n">N</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span>
+    <span class="n">duz</span> <span class="o">=</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">)</span><span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">))</span><span class="o">/</span><span class="n">N</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span>
+    
+    <span class="n">x</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">x</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">y</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">z</span>
+    <span class="n">ux</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">ux</span>
+    <span class="n">uy</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">uy</span>
+    <span class="n">uz</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span>
+
+    <span class="c1"># find idx</span>
+    <span class="c1"># idx = (x - np.min(step.x))/dx</span>
+    
+    <span class="n">idx</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="n">idx</span><span class="o">.</span><span class="n">append</span><span class="p">([])</span>
+        
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">):</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">))</span><span class="o">/</span><span class="n">dx</span>
+        <span class="n">idx</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+    
+    <span class="c1"># range par list d&#39;ids</span>
+    <span class="k">for</span> <span class="n">ix</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+        <span class="k">for</span> <span class="n">iy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+            <span class="k">for</span> <span class="n">iz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+                <span class="k">for</span> <span class="n">iux</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">3</span><span class="p">]):</span>
+                    <span class="k">for</span> <span class="n">iuy</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">4</span><span class="p">]):</span>
+                        <span class="k">for</span> <span class="n">iuz</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">[</span><span class="mi">5</span><span class="p">]):</span>
+                        
+                            <span class="k">pass</span>
+                        
+                            <span class="c1"># total weight, momenta, barycenter, energy</span>
+                            
+                            
+                            <span class="c1"># Create N particules with w = w_norm </span>
+                            <span class="c1">#Create 1 last particle</span>
+                            
+                            <span class="c1">#save </span>
+                            
+    <span class="c1"># restart with high meshgrid</span>
+                            
+    
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

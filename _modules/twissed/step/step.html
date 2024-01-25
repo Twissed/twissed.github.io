@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>twissed.step.step &mdash; skypiea 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            skypiea
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/installation.html">Twissed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">skypiea</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">twissed.step.step</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for twissed.step.step</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;step.py file</span>
+
+<span class="sd">    Python package for beam dynamics analysis in laser-plasma acceleration</span>
+<span class="sd">    author:: Damien Minenna &lt;damien.minenna@cea.fr&gt;</span>
+<span class="sd">    date = 21/07/2023</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Any</span>
+
+<span class="c1"># twissed</span>
+<span class="kn">from</span> <span class="nn">..utils.metadata</span> <span class="kn">import</span> <span class="n">MetaData</span>
+<span class="kn">from</span> <span class="nn">..utils.stats</span> <span class="kn">import</span> <span class="n">weighted_avg</span><span class="p">,</span> <span class="n">weighted_mad</span><span class="p">,</span> <span class="n">weighted_std</span><span class="p">,</span> <span class="n">weighted_med</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">units</span>
+<span class="kn">from</span> <span class="nn">.plotbeam</span> <span class="kn">import</span> <span class="n">StepPlotBeam</span>
+<span class="kn">from</span> <span class="nn">.plotfield</span> <span class="kn">import</span> <span class="n">StepPlotField</span>
+
+<span class="c1"># Variables that can be used to sort the beam.</span>
+<span class="n">BEAM_SELECTION</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;z&quot;</span><span class="p">,</span> <span class="s2">&quot;ux&quot;</span><span class="p">,</span> <span class="s2">&quot;uy&quot;</span><span class="p">,</span> <span class="s2">&quot;uz&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="s2">&quot;g&quot;</span><span class="p">,</span> <span class="s2">&quot;Ek&quot;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="Step"><a class="viewcode-back" href="../../../pages/stepclass.html#twissed.Step">[docs]</a><span class="k">class</span> <span class="nc">Step</span><span class="p">(</span>
+    <span class="n">MetaData</span><span class="p">,</span>
+    <span class="n">StepPlotBeam</span><span class="p">,</span>
+    <span class="n">StepPlotField</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main Class for simulation parameters. Include beam, laser and plasma parameters at a given timestep.</span>
+
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        #Creation of the step class</span>
+<span class="sd">        step = twissed.Step()</span>
+
+<span class="sd">        # Read data</span>
+<span class="sd">        step = steps.read_beam(step,timestep,species=&#39;electrons&#39;,g=[10.,None])</span>
+
+<span class="sd">        # Examples</span>
+<span class="sd">        print(f&quot;N particle: {step.N}&quot;)</span>
+<span class="sd">        print(f&quot;Positions {step.x} [m]&quot;)</span>
+<span class="sd">        step.print(&#39;emit_norm_rms_y&#39;)</span>
+<span class="sd">        step.print(&#39;charge&#39;)</span>
+<span class="sd">        step.print(&#39;dt&#39;)</span>
+<span class="sd">        print(f&quot;Convert dt: {step.convert(&#39;dt&#39;,&#39;ps&#39;)} [ps]&quot;)</span>
+
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        step = twissed.read_dst(&quot;treacewin.dst&quot;)</span>
+
+
+<span class="sd">    Main keys</span>
+<span class="sd">    ---------</span>
+
+<span class="sd">        * **x** (*float*) - Array of position in x, in m</span>
+<span class="sd">        * **y** (*float*) - Array of position in y, in m</span>
+<span class="sd">        * **z** (*float*) - Array of position in z, in m</span>
+<span class="sd">        * **ux** (*float*) - Normalised momenta x :math:`u_x = \gamma v_x /c = \gamma beta_x` of the macro-particle of the beam</span>
+<span class="sd">        * **uy** (*float*) - Normalised momenta y :math:`u_y = \gamma v_y /c = \gamma beta_y` of the macro-particle of the beam</span>
+<span class="sd">        * **uy** (*float*) - Normalised momenta z :math:`u_z = \gamma v_z /c = \gamma beta_z` of the macro-particle of the beam</span>
+<span class="sd">        * **w** (*float*) - Weighs of the macro-particles in term of particles, in number of particles per macro-particles&#39;</span>
+<span class="sd">        * **g** (*float*) - Lorentz factor of every single macro-particles</span>
+<span class="sd">        * **Ek** (*float*) - Relativistic kinetic energy of macro-particles</span>
+
+<span class="sd">    .. note::</span>
+
+<span class="sd">        Keys are only available if defined from read or set functions.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;Step class of twissed at a given timestep.&quot;</span>
+
+    <span class="k">def</span> <span class="nf">copy</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Step</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create copy of Step class</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            Step: copy of Step class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">step_new</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+            <span class="n">step_new</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">step_new</span>
+
+    <span class="k">def</span> <span class="nf">beam_keep_index</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">indexes_to_keep</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reduce the particles arrays with given indexes. Keep intact the dicts units and info.</span>
+<span class="sd">        Such as:     self.w = self.w[indexes_to_keep]</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            indexes_to_keep (int): indexes to keep</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">BEAM_SELECTION</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">item</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">item</span><span class="p">][</span><span class="n">indexes_to_keep</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">set_new_6D_beam</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">x</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">y</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">z</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">ux</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">uy</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">uz</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+        <span class="n">w</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Set position and momenta of the beam</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            x (np.ndarray): Positions x of the macro-particle of the beam in m</span>
+<span class="sd">            y (np.ndarray): Positions y of the macro-particle of the beam in m</span>
+<span class="sd">            z (np.ndarray): Positions z of the macro-particle of the beam in m</span>
+<span class="sd">            ux (np.ndarray): Normalised momenta x :math:`u_x = \gamma v_x /c = \gamma beta_x` of the macro-particle of the beam</span>
+<span class="sd">            uy (np.ndarray): Normalised momenta y :math:`u_y = \gamma v_y /c = \gamma beta_y` of the macro-particle of the beam</span>
+<span class="sd">            uz (np.ndarray): Normalised momenta z :math:`u_z = \gamma v_z /c = \gamma beta_z` of the macro-particle of the beam</span>
+<span class="sd">            w (np.ndarray): Weighs of the macro-particles in term of number of particles</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">z</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ux</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ux</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">uy</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">uz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">uz</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_beam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate all the beam data.</span>
+
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            step.get_beam(x=[-12*1e-6,12*1e-6], g=[200,None],Ek_avg=[-50,50])</span>
+
+<span class="sd">        Range arguments accepted for selection</span>
+<span class="sd">        --------------------------------------</span>
+
+<span class="sd">            * **x** (*float*) - Array of position in x, in m</span>
+<span class="sd">            * **y** (*float*) - Array of position in y, in m</span>
+<span class="sd">            * **z** (*float*) - Array of position in z, in m</span>
+<span class="sd">            * **ux** (*float*) - Normalised momenta x :math:`u_x = \gamma v_x /c = \gamma beta_x` of the macro-particle of the beam</span>
+<span class="sd">            * **uy** (*float*) - Normalised momenta y :math:`u_y = \gamma v_y /c = \gamma beta_y` of the macro-particle of the beam</span>
+<span class="sd">            * **uy** (*float*) - Normalised momenta z :math:`u_z = \gamma v_z /c = \gamma beta_z` of the macro-particle of the beam</span>
+<span class="sd">            * **w** (*float*) - Weighs of the macro-particles in term of particles, in number of particles per macro-particles</span>
+<span class="sd">            * **g** (*float*) - Lorentz factor of every single macro-particles</span>
+<span class="sd">            * **Ek** (*float*) - Relativistic kinetic energy of macro-particles</span>
+
+<span class="sd">        .. note::</span>
+
+<span class="sd">            * All the above arguments can be added with the &#39;_avg&#39; suffix to force the selection to be performed around the mean value.</span>
+<span class="sd">            * Variables self.w, self.ux, self.uy, self.uz, self.x, self.y and self.z must have be defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># TODO: Add security self.w, self.ux, self.uy, self.uz, self.x, self.y and self.z</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">ux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">uy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>  <span class="c1"># gamma</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ek</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">mega</span>
+        <span class="p">)</span>  <span class="c1"># Kinetic energy</span>
+
+        <span class="c1"># TODO: Add weight selection and reducer (if N too high)</span>
+
+        <span class="c1"># Selection of particles</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">BEAM_SELECTION</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indexes_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">beam_keep_index</span><span class="p">(</span><span class="n">indexes_to_keep</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indexes_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">beam_keep_index</span><span class="p">(</span><span class="n">indexes_to_keep</span><span class="p">)</span>
+
+            <span class="n">name_avg</span> <span class="o">=</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;_avg&quot;</span>
+            <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_avg</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name_avg</span> <span class="o">+</span> <span class="s2">&quot;_range&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_avg</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+                <span class="n">mean</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_avg</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indexes_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean</span> <span class="o">&gt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_avg</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">beam_keep_index</span><span class="p">(</span><span class="n">indexes_to_keep</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_avg</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">indexes_to_keep</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">-</span> <span class="n">mean</span> <span class="o">&lt;=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name_avg</span><span class="p">,</span> <span class="kc">False</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">beam_keep_index</span><span class="p">(</span><span class="n">indexes_to_keep</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">vz</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span>  <span class="c1"># Speed</span>
+
+        <span class="c1"># ! Security for other species than electrons !!!</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="p">)</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">pico</span>  <span class="c1"># Total charge</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># Number of particles</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&lt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No beam!&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># * Energies</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ek_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ek</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># Mean energy</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ek_med</span> <span class="o">=</span> <span class="n">weighted_med</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ek</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># Median energy</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ek_std</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ek</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># STD energy</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ek_mad</span> <span class="o">=</span> <span class="n">weighted_mad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ek</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># MAD energy</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ek_std_perc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ek_std</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ek_avg</span> <span class="o">*</span> <span class="mi">100</span>  <span class="c1"># STD energy %</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">Ek_mad_perc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ek_mad</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">Ek_med</span> <span class="o">*</span> <span class="mi">100</span>  <span class="c1"># MAD energy %</span>
+
+            <span class="c1"># * Lorentz</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">g_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># Mean Lorentz</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">g_med</span> <span class="o">=</span> <span class="n">weighted_med</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># Median Lorentz</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">g_std</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># STD Lorentz</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">g_mad</span> <span class="o">=</span> <span class="n">weighted_mad</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">g</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># MAD Lorentz</span>
+
+            <span class="c1"># * Size</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_x</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># size in x</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_y</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># size in y</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_z</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># size in z</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_ux</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># size in ux</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_uy</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># size in uy</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_uz</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># size in uz</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_Ek</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">Ek</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>  <span class="c1"># STD energy</span>
+
+            <span class="c1"># * Average mean velocity</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">betaz_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vz</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * dp/p</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">g</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaz_avg</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span>  <span class="c1"># momenta</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">p_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">p</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_avg</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">p_avg</span>  <span class="c1"># Momenta variation dp/p</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_dp</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * xp and yp</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ux</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">uy</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_xp</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_yp</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_divergence</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_divergence</span> <span class="o">=</span> <span class="n">weighted_std</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * Center of mass &lt;x&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * &lt;x**2&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xx_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">yy_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * &lt;ux&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ux_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ux</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">uy_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uy</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">uz_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">uz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * &lt;x&#39;&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * &lt;x&#39;*2&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xpxp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ypyp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">((</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+            <span class="c1"># * &lt;x x&#39;&gt;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">xxp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">yyp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="c1"># * trace emittances</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_x</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xx_avg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpxp_avg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xxp_avg</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+                <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_y</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yy_avg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">ypyp_avg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yyp_avg</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+                <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_avg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaz_avg</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_avg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaz_avg</span>
+
+            <span class="c1"># * Twiss parameters x, y</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xx_avg</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_x</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yy_avg</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_y</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma_x</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xpxp_avg</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_x</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma_y</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ypyp_avg</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_y</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha_x</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">xxp_avg</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_x</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha_y</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">yyp_avg</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_y</span> <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+
+            <span class="c1"># * Beam sigma matrix</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xy_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xyp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">yxp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xpyp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xz_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xdp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">x_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">zxp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">xpdp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">xp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">xp_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">yz_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ydp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">zyp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">ypdp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">yp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">yp_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">zz_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">zdp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">z_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dpdp_avg</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">dp_avg</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="n">sigma_matrix</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xx_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xy_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xz_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xdp_avg</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xpxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xpyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xpdp_avg</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xy_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yy_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yz_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ydp_avg</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xpyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ypyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ypdp_avg</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xz_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zxp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">yz_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zyp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zz_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zdp_avg</span><span class="p">,</span>
+                <span class="p">],</span>
+                <span class="p">[</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xdp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">xpdp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ydp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ypdp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">zdp_avg</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">dpdp_avg</span><span class="p">,</span>
+                <span class="p">],</span>
+            <span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sigma_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">sigma_matrix</span><span class="p">)</span>
+
+            <span class="c1"># * z emittances</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_z</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zz_avg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpdp_avg</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">zdp_avg</span><span class="o">**</span><span class="mi">2</span><span class="p">))</span>
+                <span class="o">/</span> <span class="n">units</span><span class="o">.</span><span class="n">micro</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_z</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">g_avg</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">betaz_avg</span> <span class="o">/</span> <span class="mi">10</span>
+
+            <span class="c1"># * Twiss parameters z</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">beta_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zz_avg</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_z</span> <span class="o">*</span> <span class="mi">10</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">gamma_z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dpdp_avg</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_z</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">alpha_z</span> <span class="o">=</span> <span class="o">-</span><span class="bp">self</span><span class="o">.</span><span class="n">zdp_avg</span> <span class="o">*</span> <span class="mf">1e6</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_rms_z</span>
+
+            <span class="c1"># * 4D and 6D emittances</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_4D</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_y</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_6D</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_x</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_y</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">emit_norm_rms_z</span> <span class="o">*</span> <span class="mi">10</span>
+            <span class="p">)</span>
+
+            <span class="c1"># * Dispersions</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">x_dispersion</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">y_dispersion</span> <span class="o">=</span> <span class="n">weighted_avg</span><span class="p">(</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dp</span><span class="o">**</span><span class="mi">2</span><span class="p">),</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span>
+            <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_advanced_beam</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_advanced_beam</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Add arrays to beam data&quot;&quot;&quot;</span>
+
+        <span class="c1"># * dQ/dE histogramm</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mi">1000</span><span class="p">:</span>
+            <span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s2">&quot;Ek&quot;</span><span class="p">,</span> <span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">plot</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="n">x_in_fwhm</span> <span class="o">=</span> <span class="n">xpos</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">H</span> <span class="o">&gt;=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">H</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)]</span>
+            <span class="n">fwhm</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">x_in_fwhm</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">x_in_fwhm</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">H</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">xpos</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.0</span><span class="p">]</span>
+            <span class="n">x_in_fwhm</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">fwhm</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ek_hist_yaxis</span> <span class="o">=</span> <span class="n">H</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ek_hist_xaxis</span> <span class="o">=</span> <span class="n">xpos</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ek_hist_peak</span> <span class="o">=</span> <span class="n">xpos</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">H</span><span class="p">)]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">Ek_hist_fwhm</span> <span class="o">=</span> <span class="n">fwhm</span>
+
+    <span class="k">def</span> <span class="nf">rotationXY</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">angle</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Step</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Counterclockwise rotate the x-y plan to a given angle</span>
+
+
+<span class="sd">        Example</span>
+<span class="sd">        -------</span>
+<span class="sd">        .. code-block:: python</span>
+
+<span class="sd">            # 90 degree rotation of the beam</span>
+<span class="sd">            step_new = step.rotationXY(90*np.pi/180)</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            angle (float): Angle of the counterclockwise rotation, in rad</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            step: New step class</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">step_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">x_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+        <span class="n">y_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+        <span class="n">ux_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ux</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">uy</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+        <span class="n">uy_new</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ux</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">uy</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">angle</span><span class="p">)</span>
+
+        <span class="n">step_new</span><span class="o">.</span><span class="n">set_new_6D_beam</span><span class="p">(</span><span class="n">x_new</span><span class="p">,</span> <span class="n">y_new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">ux_new</span><span class="p">,</span> <span class="n">uy_new</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">uz</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+        <span class="n">step_new</span><span class="o">.</span><span class="n">get_beam</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="n">step_new</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

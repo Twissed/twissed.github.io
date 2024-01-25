@@ -1,0 +1,28 @@
+Automatic launchers and runs
+============================
+
+Run class
+---------
+
+.. autofunction:: twissed.Run
+
+Get data from Run
+^^^^^^^^^^^^^^^^^
+
+Read data from run
+
+.. autofunction:: twissed.getdatafromrun
+
+Classic launcher
+----------------
+
+.. autofunction:: twissed.Launcher
+
+.. autofunction:: twissed.Launcher.getdata
+
+
+Genetic Algorithm launcher
+--------------------------
+
+
+.. autofunction:: twissed.LauncherGA

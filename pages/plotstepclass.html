@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Plotting with the Step class &mdash; twissed 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Read and write data" href="io.html" />
+    <link rel="prev" title="Step class" href="stepclass.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            twissed
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="stepclass.html">Step class</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Plotting with the Step class</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#hist1d-and-hist2d-functions">hist1D and hist2D functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step.hist1D"><code class="docutils literal notranslate"><span class="pre">hist1D()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#twissed.Step.hist2D"><code class="docutils literal notranslate"><span class="pre">hist2D()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">twissed</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Plotting with the Step class</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pages/plotstepclass.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="plotting-with-the-step-class">
+<h1>Plotting with the Step class<a class="headerlink" href="#plotting-with-the-step-class" title="Permalink to this heading">¶</a></h1>
+<p>Several diagnostics are available with the Step class.</p>
+<section id="hist1d-and-hist2d-functions">
+<h2>hist1D and hist2D functions<a class="headerlink" href="#hist1d-and-hist2d-functions" title="Permalink to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step.hist1D">
+<span class="sig-prename descclassname"><span class="pre">twissed.Step.</span></span><span class="sig-name descname"><span class="pre">hist1D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xconv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xrange</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'charge'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yconv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yrange</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'plot'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#twissed.Step.hist1D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot/get 1D histogram data from the weighted beam.</p>
+<p class="rubric">Example</p>
+<div class="literal-block-wrapper docutils container" id="id2">
+<div class="code-block-caption"><span class="caption-text">Simple plot of the x distribution (dQ/dx).</span><a class="headerlink" href="#id2" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Note that x axis is convert in um with xconv. step.sigma_x is the standard deviation (bunch length) in x.</span>
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;x&#39;</span><span class="p">,</span>
+                    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;um&#39;</span><span class="p">,</span>
+                    <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e6</span><span class="p">,</span><span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e6</span><span class="p">],</span>
+                    <span class="n">bins</span><span class="o">=</span><span class="mi">150</span><span class="p">,</span>
+                    <span class="c1"># dx = 1, # Instead of bins</span>
+                    <span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span>
+                    <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span>
+                    <span class="n">fwhm</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="literal-block-wrapper docutils container" id="id3">
+<div class="code-block-caption"><span class="caption-text">Multiple plots.</span><a class="headerlink" href="#id3" title="Permalink to this code">¶</a></div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">axs</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="o">*</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="o">*</span><span class="mi">2</span><span class="p">),</span> <span class="n">dpi</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tight_layout</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">fig</span><span class="o">.</span><span class="n">suptitle</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dQ/dE with various options&quot;</span><span class="p">)</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plot: dx = 1 ($\Delta$E = </span><span class="si">{</span><span class="w"> </span><span class="n">xpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;plot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;plot: bins=50 ($\Delta$E = </span><span class="si">{</span><span class="w"> </span><span class="n">xpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;hist&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hist: bins=20 ($\Delta$E = </span><span class="si">{</span><span class="w"> </span><span class="n">xpos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">-</span><span class="n">xpos</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;lineplot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;lineplot: bins=50&quot;</span><span class="p">)</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">bins</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;histplot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;histplot: bins=50&quot;</span><span class="p">)</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist1D</span><span class="p">(</span><span class="s1">&#39;Ek&#39;</span><span class="p">,</span><span class="n">dx</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span><span class="n">plot</span><span class="o">=</span><span class="s1">&#39;histplot&#39;</span><span class="p">,</span><span class="n">ax</span><span class="o">=</span><span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">])</span>
+<span class="n">_</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;histplot: dx=1&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xname</strong> (<em>str</em>) – Name of the beam value for the x axis (e.g. “x”,”uy”,”Ek”,…)</p></li>
+<li><p><strong>xconv</strong> (<em>str</em><em>, </em><em>optional</em>) – Unit wanted for the x axis. Defaults to None.</p></li>
+<li><p><strong>xrange</strong> (<em>list</em><em>, </em><em>optional</em>) – Range [min, max] of the data. Defaults to [None,None].</p></li>
+<li><p><strong>yname</strong> (<em>str</em><em>, </em><em>optional</em>) – Set the y axis. Defaults to ‘charge’.</p></li>
+<li><p><strong>yconv</strong> (<em>str</em><em>, </em><em>optional</em>) – Unit wanted for the y axis. Defaults to None.</p></li>
+<li><p><strong>yrange</strong> (<em>list</em><em>, </em><em>optional</em>) – Range [min, max] of the data. Defaults to [None,None].</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of bins used. Defaults to 100.</p></li>
+<li><p><strong>dx</strong> (<em>float</em><em>, </em><em>optional</em>) – Step in x wanted. <strong>Modify bins</strong>. Defaults to None.</p></li>
+<li><p><strong>plot</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of plot wanted. Defaults to step.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.axes</em><em>, </em><em>optional</em>) – matplotlib.pyplot.axes object for plots. Defaults to None.
+If None, but plot != None, will create a new figure with its own ax.</p></li>
+<li><p><strong>**kwargs</strong> (<em>List</em><em> of </em><em>properties</em>) – <ul>
+<li><p>xlabel (bool): Plot xlabel. Defaults to True.</p></li>
+<li><p>ylabel (bool): Plot xlabel. Defaults to True.</p></li>
+<li><p>short (bool): Use short unit label. Defaults to False.</p></li>
+<li><p>linestyle (str): Defaults to “-“.</p></li>
+<li><p>fwhm (bool): Plot the FWHM limits. Defaults to False.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>hist (float)</strong> (<em>array</em>) – The values of the histogram. See density and weights for a description of the possible semantics.</p></li>
+<li><p><strong>xpos (float)</strong> (<em>array of dtype float</em>) – Return the bin positions (len(hist)) at the center of bins.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="twissed.Step.hist2D">
+<span class="sig-prename descclassname"><span class="pre">twissed.Step.</span></span><span class="sig-name descname"><span class="pre">hist2D</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">self</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yname</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xconv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yconv</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xrange</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">yrange</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[100,</span> <span class="pre">100]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'pcolormesh'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">iscbar</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vrange</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[None,</span> <span class="pre">None]</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#twissed.Step.hist2D" title="Permalink to this definition">¶</a></dt>
+<dd><p>Plot/get 2D histogram data from the weighted beam.</p>
+<p class="rubric">Example</p>
+<div class="literal-block-wrapper docutils container" id="id4">
+<div class="code-block-caption"><span class="caption-text">Simple plot of the x distribution (dQ/dx).</span><a class="headerlink" href="#id4" title="Permalink to this code">¶</a></div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">twissed_cmap</span> <span class="o">=</span> <span class="n">twissed</span><span class="o">.</span><span class="n">Cmap</span><span class="p">()</span>
+
+<span class="n">H</span><span class="p">,</span> <span class="n">xpos</span><span class="p">,</span> <span class="n">ypos</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">hist2D</span><span class="p">(</span>
+    <span class="s1">&#39;x&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;xp&#39;</span><span class="p">,</span>
+    <span class="n">xconv</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span>
+    <span class="n">yconv</span><span class="o">=</span><span class="s1">&#39;mrad&#39;</span><span class="p">,</span>
+    <span class="n">xrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e0</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_x</span><span class="o">*</span><span class="mf">1e0</span><span class="p">],</span>
+    <span class="n">yrange</span><span class="o">=</span><span class="p">[</span><span class="o">-</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_xp</span><span class="o">*</span><span class="mf">1e3</span><span class="p">,</span> <span class="mi">3</span><span class="o">*</span><span class="n">step</span><span class="o">.</span><span class="n">sigma_xp</span><span class="o">*</span><span class="mf">1e3</span><span class="p">],</span>
+    <span class="n">plot</span><span class="o">=</span><span class="s1">&#39;pcolormesh_improved&#39;</span><span class="p">,</span>
+    <span class="n">cmap</span><span class="o">=</span><span class="n">twissed_cmap</span><span class="o">.</span><span class="n">cubehelix_r</span><span class="p">,</span>
+    <span class="n">emit</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="admonition-todo admonition" id="id1">
+<p class="admonition-title">Todo</p>
+<p>Remove pcolormesh_improved. Add option for 1D histogram.
+Add more kwargs.</p>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>xname</strong> (<em>str</em>) – Name of the beam value for the x axis (e.g. “x”,”uy”,”Ek”,…)</p></li>
+<li><p><strong>yname</strong> (<em>str</em>) – Name of the beam value for the y axis (e.g. “x”,”uy”,”Ek”,…)</p></li>
+<li><p><strong>xconv</strong> (<em>str</em><em>, </em><em>optional</em>) – Unit wanted for the x axis. Defaults to None.</p></li>
+<li><p><strong>yconv</strong> (<em>str</em><em>, </em><em>optional</em>) – Unit wanted for the y axis. Defaults to None.</p></li>
+<li><p><strong>xrange</strong> (<em>list</em><em>, </em><em>optional</em>) – Range [min, max] of the x data.. Defaults to [np.nan,np.nan].</p></li>
+<li><p><strong>yrange</strong> (<em>list</em><em>, </em><em>optional</em>) – Range [min, max] of the y data.. Defaults to [np.nan,np.nan].</p></li>
+<li><p><strong>bins</strong> (<em>list</em><em>, </em><em>optional</em>) – Number of bins used. Defaults to [100,100].</p></li>
+<li><p><strong>plot</strong> (<em>str</em><em>, </em><em>optional</em>) – Type of plot wanted. Available: “pcolormesh”, “scatter”, “hist2D, “hexbin”, “bivariate”. Defaults to “pcolormesh”.</p></li>
+<li><p><strong>ax</strong> (<em>matplotlib.pyplot.axes</em><em>, </em><em>optional</em>) – matplotlib.pyplot.axes object for plots. Defaults to None.
+If None, but plot != None, will create a new figure with its own ax.</p></li>
+<li><p><strong>iscbar</strong> (<em>bool</em><em>, </em><em>optional</em>) – Plot colorbar. Defaults to True.</p></li>
+<li><p><strong>emit</strong> (<em>bool</em><em>, </em><em>optional</em>) – Plot emittance. Defaults to True.</p></li>
+<li><p><strong>**kwargs</strong> (<em>List</em><em> of </em><em>properties</em>) – <ul>
+<li><p>cmap (str): colormap of . Defaults to ‘tracewin’.</p></li>
+<li><p>grid (str): Defaults to True.</p></li>
+<li><p>shading (str): Pcolormesh shading. Defaults to “auto”. “gouraud” available.</p></li>
+<li><p>vmin (float): Pcolormesh vmin. Defaults to None.</p></li>
+<li><p>vmax (float): Pcolormesh vmax. Defaults to None.</p></li>
+<li><p>xlabel (bool): Plot xlabel. Defaults to True.</p></li>
+<li><p>ylabel (bool): Plot xlabel. Defaults to True.</p></li>
+<li><p>short (bool): Use short unit label. Defaults to False.</p></li>
+<li><p>set_xticks (list): Defaults to False.</p></li>
+<li><p>set_yticks (list): Defaults to False.</p></li>
+<li><p>marginals_bar (bool): Plot small 1d histogram (bar format). Defaults to False.</p></li>
+<li><p>marginals_plot (bool): Plot small 1d histogram (plotline format). Defaults to False.</p></li>
+<li><p>marginals_step (bool): Plot small 1d histogram (step format). Defaults to True.</p></li>
+<li><p>marginals_color (str): Color of the small 1d histogram. Defaults to “firebrick”.</p></li>
+<li><p>emit_color (str): Color of the emittance. Default to “firebrick”.</p></li>
+<li><p>panel_text (str): Name of the panel. For instance: “(a)”, “(b)”, or “i)”.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>hist (float)</strong> (<em>2D array</em>) – The bi-dimensional histogram of samples x and y. Values in x are histogrammed along the first dimension and values in y are histogrammed along the second dimension.</p></li>
+<li><p><strong>xpos (float)</strong> (<em>1D array</em>) – The bin positions (middle) along the x-axis.</p></li>
+<li><p><strong>ypos (float)</strong> (<em>1D array</em>) – The bin positions (middle) along the y-axis.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stepclass.html" class="btn btn-neutral float-left" title="Step class" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="io.html" class="btn btn-neutral float-right" title="Read and write data" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

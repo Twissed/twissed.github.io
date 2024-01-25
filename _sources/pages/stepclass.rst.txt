@@ -1,0 +1,32 @@
+Step class
+==========
+
+Metadata
+--------
+
+All the major classes are children of the MetaData class that is used to set metadata to the classes attributes.
+
+.. autofunction:: twissed.utils.metadata.MetaData.__setattr__
+
+
+Introduction ot Step
+--------------------
+
+The main class is the ``skypiea.Step`` class.
+
+.. autofunction:: twissed.Step
+
+Functions
+---------
+
+.. autofunction:: twissed.Step.copy 
+    
+
+Beam functions
+--------------
+
+.. autofunction:: twissed.Step.set_new_6D_beam
+
+.. autofunction:: twissed.Step.get_beam
+   
+.. autofunction:: twissed.Step.rotationXY 

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>twissed.utils.noweight &mdash; twissed 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            twissed
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/installation.html">Twissed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">twissed</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">twissed.utils.noweight</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for twissed.utils.noweight</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;noweight.py file</span>
+
+<span class="sd">    Python package for beam dynamics analysis in laser-plasma acceleration</span>
+<span class="sd">    author:: Damien Minenna &lt;damien.minenna@cea.fr&gt;</span>
+<span class="sd">    date = 21/07/2023</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+
+<span class="c1"># twissed</span>
+<span class="kn">from</span> <span class="nn">..step.step</span> <span class="kn">import</span> <span class="n">Step</span>
+
+
+<div class="viewcode-block" id="noweight"><a class="viewcode-back" href="../../../pages/noweight.html#twissed.noweight">[docs]</a><span class="k">def</span> <span class="nf">noweight</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="n">Step</span><span class="p">,</span> <span class="n">weight_norm</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span> <span class="n">method</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Step</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove weight of the distribution. Zero method with random for ratio.</span>
+
+<span class="sd">    Might create more weight than original distribution.</span>
+
+<span class="sd">    Use</span>
+<span class="sd">    ---</span>
+
+<span class="sd">    * Define a new weight `weight_norm`.</span>
+<span class="sd">    * For each particle.</span>
+<span class="sd">        * if w &gt; weight_norm</span>
+<span class="sd">            * Create N new particles with same position and momenta.</span>
+<span class="sd">            with `N = int(np.floor(w/weight_norm))`</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        step (Step class): Step class</span>
+<span class="sd">        weight_norm (float, optional): New weight. Defaults to 1.</span>
+<span class="sd">        method (int,optional): Type of method used (1 better than 0).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Step class: A new Step class</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">x_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">z_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ux_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uy_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">uz_new</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">w_new</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+            <span class="n">w_t</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+            <span class="n">N_int</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_t</span> <span class="o">/</span> <span class="n">weight_norm</span><span class="p">))</span>
+
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N_int</span><span class="p">):</span>
+                <span class="n">w_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight_norm</span><span class="p">)</span>
+                <span class="n">x_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">y_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">z_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">ux_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">uy_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">uz_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+
+            <span class="n">N_rat</span> <span class="o">=</span> <span class="p">(</span><span class="n">w_t</span> <span class="o">/</span> <span class="n">weight_norm</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_t</span> <span class="o">/</span> <span class="n">weight_norm</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">N_rat</span> <span class="o">&gt;</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">():</span>
+                <span class="n">w_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight_norm</span><span class="p">)</span>
+                <span class="n">x_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">y_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">z_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">ux_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">uy_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                <span class="n">uz_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+
+    <span class="k">elif</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">weight_norm</span><span class="p">:</span>
+                <span class="n">w_t</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">[</span><span class="nb">id</span><span class="p">]</span>
+                <span class="n">N</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">w_t</span> <span class="o">/</span> <span class="n">weight_norm</span><span class="p">))</span>
+
+                <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+                    <span class="n">w_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">weight_norm</span><span class="p">)</span>
+                    <span class="n">x_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">x</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                    <span class="n">y_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">y</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                    <span class="n">z_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                    <span class="n">ux_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                    <span class="n">uy_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+                    <span class="n">uz_new</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="p">[</span><span class="nb">id</span><span class="p">])</span>
+
+    <span class="n">step_new</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+    <span class="n">step_new</span><span class="o">.</span><span class="n">set_new_6D_beam</span><span class="p">(</span>
+        <span class="n">x_new</span><span class="p">,</span>
+        <span class="n">y_new</span><span class="p">,</span>
+        <span class="n">z_new</span><span class="p">,</span>
+        <span class="n">ux_new</span><span class="p">,</span>
+        <span class="n">uy_new</span><span class="p">,</span>
+        <span class="n">uz_new</span><span class="p">,</span>
+        <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">)</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">step_new</span><span class="o">.</span><span class="n">get_beam</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Nparticle  Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Emittance x - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_x</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Emittance y - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">emit_norm_rms_y</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Energy mean - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">Ek_avg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Charge - Old: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">, Saved: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">w_new</span><span class="p">))</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">const</span><span class="o">.</span><span class="n">e</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mf">1e12</span><span class="w"> </span><span class="si">}</span><span class="s2">, New: </span><span class="si">{</span><span class="n">step_new</span><span class="o">.</span><span class="n">charge</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">step_new</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2024, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

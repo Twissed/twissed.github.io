@@ -1,0 +1,35 @@
+Useful formulas
+===============
+
+
+Statistics
+--------------------
+
+.. autofunction:: twissed.weighted_avg
+
+.. autofunction:: twissed.weighted_std
+
+.. autofunction:: twissed.weighted_med
+
+.. autofunction:: twissed.weighted_mad
+
+
+Physics
+--------------------
+
+.. autofunction:: twissed.laser_strength
+
+.. autofunction:: twissed.critical_density
+
+.. autofunction:: twissed.Rayleigh_length
+
+.. autofunction:: twissed.accelerating_electric_field
+
+.. autofunction:: twissed.waist0_theory
+
+.. autofunction:: twissed.plasma_frequency
+
+Helpful
+-------
+
+.. autofunction:: twissed.convert_laser_duration_FWHM

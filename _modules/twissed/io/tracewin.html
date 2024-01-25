@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>twissed.io.tracewin &mdash; skypiea 2.1.1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            skypiea
+          </a>
+              <div class="version">
+                2.1.1
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/installation.html">Twissed</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">skypiea</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">twissed.io.tracewin</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for twissed.io.tracewin</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;tracewin.py file</span>
+
+<span class="sd">    Python package for beam dynamics analysis in laser-plasma acceleration</span>
+<span class="sd">    author:: Damien Minenna &lt;damien.minenna@cea.fr&gt;</span>
+<span class="sd">    date = 21/07/2023</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">import</span> <span class="nn">struct</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="c1"># twissed</span>
+<span class="kn">from</span> <span class="nn">..step.step</span> <span class="kn">import</span> <span class="n">Step</span>
+
+
+<div class="viewcode-block" id="read_dst"><a class="viewcode-back" href="../../../pages/io.html#twissed.read_dst">[docs]</a><span class="k">def</span> <span class="nf">read_dst</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">charge</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Step</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read dst file into a Step class. All information on the beam are computed.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        step = twissed.read_dst(&quot;treacewin.dst&quot;, charge = 100, inverse_x_and_y=True)</span>
+
+
+<span class="sd">    .. todo::</span>
+
+<span class="sd">        Check charge in pC.</span>
+<span class="sd">        Check z distribution.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        filename (str): Path of the dst file.</span>
+<span class="sd">        charge (float, optional): Overwrite the total charge to the given amount in pC.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Step: class containing beam information :meth:`twissed.step`.</span>
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : List of properties</span>
+<span class="sd">        * verbose (bool): Display information. Defaults to True.</span>
+<span class="sd">        * inverse_x_and_y (bool): Inverse the x and y axis. Defaults to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span>  <span class="c1"># opening a binary file</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+    <span class="n">header</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;cciddc&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">23</span><span class="p">]))</span>
+
+    <span class="n">N</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">freq</span> <span class="o">=</span> <span class="n">header</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e6</span>
+
+    <span class="c1"># ! Todo check charge in pC !</span>
+
+    <span class="n">charge_applicable</span> <span class="o">=</span> <span class="n">current</span> <span class="o">/</span> <span class="n">freq</span>
+    <span class="k">if</span> <span class="n">charge</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">charge_applicable</span> <span class="o">=</span> <span class="n">charge</span>
+
+    <span class="k">if</span> <span class="n">charge</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="n">charge_applicable</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span> <span class="o">/</span> <span class="mf">1e12</span> <span class="o">/</span> <span class="n">N</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">weight</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+    <span class="n">last_id</span> <span class="o">=</span> <span class="mi">23</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">t</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">W</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">N</span><span class="p">):</span>
+        <span class="n">part</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;dddddd&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="n">last_id</span> <span class="p">:</span> <span class="n">last_id</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">6</span><span class="p">]))</span>
+
+        <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;inverse_x_and_y&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+            <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">yp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">x</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="n">xp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">y</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+            <span class="n">yp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+
+        <span class="n">t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">4</span><span class="p">])</span>
+        <span class="n">W</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">part</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span>
+
+        <span class="n">last_id</span> <span class="o">=</span> <span class="n">last_id</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">6</span>
+
+    <span class="n">Erest</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">unpack</span><span class="p">(</span><span class="s2">&quot;&lt;d&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">[</span><span class="n">last_id</span> <span class="p">:</span> <span class="n">last_id</span> <span class="o">+</span> <span class="mi">8</span> <span class="o">*</span> <span class="mi">6</span><span class="p">]))[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">1e-6</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">y</span><span class="p">)</span> <span class="o">/</span> <span class="mf">100.0</span>
+    <span class="n">xp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">xp</span><span class="p">)</span>
+    <span class="n">yp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">yp</span><span class="p">)</span>
+
+    <span class="n">W</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">W</span><span class="p">)</span> <span class="o">/</span> <span class="mf">1e-6</span>
+    <span class="n">gammaloc</span> <span class="o">=</span> <span class="n">W</span> <span class="o">/</span> <span class="n">Erest</span> <span class="o">+</span> <span class="mf">1.0</span>
+
+    <span class="n">uz</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">gammaloc</span><span class="o">**</span><span class="mi">2</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">xp</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">yp</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="mf">1.0</span><span class="p">))</span>
+
+    <span class="n">t</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="n">ux</span> <span class="o">=</span> <span class="n">xp</span> <span class="o">*</span> <span class="n">uz</span>
+    <span class="n">uy</span> <span class="o">=</span> <span class="n">yp</span> <span class="o">*</span> <span class="n">uz</span>
+
+    <span class="n">z</span> <span class="o">=</span> <span class="o">-</span><span class="n">t</span> <span class="o">*</span> <span class="n">uz</span> <span class="o">/</span> <span class="n">gammaloc</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span> <span class="o">/</span> <span class="mf">2.0</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">pi</span> <span class="o">/</span> <span class="n">freq</span>
+
+    <span class="n">step</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+
+    <span class="n">step</span><span class="o">.</span><span class="n">set_new_6D_beam</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span> <span class="n">ux</span><span class="p">,</span> <span class="n">uy</span><span class="p">,</span> <span class="n">uz</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ones</span><span class="p">(</span><span class="n">N</span><span class="p">)</span> <span class="o">*</span> <span class="n">weight</span><span class="p">)</span>
+
+    <span class="n">step</span><span class="o">.</span><span class="n">get_beam</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;INFO: .dst file read with N particle: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2"> and charge </span><span class="si">{</span><span class="n">charge</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">step</span></div>
+
+
+<span class="k">def</span> <span class="nf">write_dst</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="n">Step</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">freq</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1e9</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a .dst file for the beam.</span>
+
+
+<span class="sd">    Warning</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    The weigh of particle must be equal!</span>
+
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        twissed.write_dst(step, &quot;treacewin.dst&quot;, freq=1e9, inverse_x_and_y=True)</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        step (Step): class containing beam information :meth:`twissed.step`.</span>
+<span class="sd">        filename (str): Path + name of the file</span>
+<span class="sd">        freq (float,optional): Frequency. Default to 1 GHz.</span>
+
+
+<span class="sd">    Other Parameters</span>
+<span class="sd">    ----------------</span>
+<span class="sd">    **kwargs : List of properties</span>
+<span class="sd">        * verbose (bool): Display information. Defaults to True.</span>
+<span class="sd">        * inverse_x_and_y (bool): Inverse the x and y axis. Defaults to False. Warning: It is not equal to rotation -90° !</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">inverse_x_and_y</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+        <span class="s2">&quot;inverse_x_and_y&quot;</span><span class="p">,</span> <span class="kc">False</span>
+    <span class="p">)</span>  <span class="c1"># Warning ! Not equal to rotation -90° !</span>
+
+    <span class="n">dtype_TWin</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;xp&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;yp&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;t&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;W&quot;</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">),</span>
+    <span class="p">]</span>
+
+    <span class="n">charge</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span>
+
+    <span class="n">arr_z</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">z</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">z</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)</span>
+
+    <span class="n">me_eV</span> <span class="o">=</span> <span class="n">const</span><span class="o">.</span><span class="n">m_e</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span><span class="o">**</span><span class="mi">2</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">e</span>
+    <span class="n">Erest</span> <span class="o">=</span> <span class="n">me_eV</span>
+
+    <span class="n">tab_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">size</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">w</span><span class="p">)),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype_TWin</span><span class="p">)</span>
+
+    <span class="n">gammaloc</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mf">1.0</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">ux</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">uy</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">inverse_x_and_y</span><span class="p">:</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;xp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">ux</span> <span class="o">/</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;yp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">uy</span> <span class="o">/</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">y</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">x</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;xp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">uy</span> <span class="o">/</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;yp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">ux</span> <span class="o">/</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span>
+    <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="o">-</span><span class="n">arr_z</span> <span class="o">/</span> <span class="n">step</span><span class="o">.</span><span class="n">uz</span> <span class="o">/</span> <span class="n">const</span><span class="o">.</span><span class="n">c</span> <span class="o">*</span> <span class="n">gammaloc</span> <span class="o">*</span> <span class="mf">2.0</span> <span class="o">*</span> <span class="n">const</span><span class="o">.</span><span class="n">pi</span> <span class="o">*</span> <span class="n">freq</span>
+    <span class="p">)</span>  <span class="c1"># PHASE Phi</span>
+    <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;W&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">gammaloc</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">*</span> <span class="n">Erest</span>  <span class="c1"># = self.Ek</span>
+
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">charge</span> <span class="o">*</span> <span class="n">freq</span>
+
+    <span class="c1"># apert=10e-6</span>
+    <span class="c1"># apert=0</span>
+    <span class="c1"># if apert &gt; 0:</span>
+    <span class="c1">#     mask1 = np.abs(tab_end[&quot;x&quot;])&lt;apert</span>
+    <span class="c1">#     tab_end = tab_end[mask1]</span>
+    <span class="c1">#     mask1 = np.abs(tab_end[&quot;y&quot;])&lt;apert</span>
+    <span class="c1">#     tab_end = tab_end[mask1]</span>
+
+    <span class="n">center</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">if</span> <span class="n">center</span><span class="p">:</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;xp&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;xp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;yp&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;yp&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+        <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span> <span class="o">-=</span> <span class="n">tab_end</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fout</span><span class="p">:</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+            <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span>
+                <span class="s2">&quot;&lt;cciddc&quot;</span><span class="p">,</span>
+                <span class="nb">chr</span><span class="p">(</span><span class="mi">125</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                <span class="nb">chr</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">tab_end</span><span class="p">),</span>
+                <span class="n">cur</span> <span class="o">*</span> <span class="mf">1e3</span><span class="p">,</span>
+                <span class="n">freq</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span>
+                <span class="nb">chr</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">line_data</span> <span class="ow">in</span> <span class="n">tab_end</span><span class="p">:</span>
+            <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span>
+                    <span class="s2">&quot;&lt;dddddd&quot;</span><span class="p">,</span>
+                    <span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span>
+                    <span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;xp&quot;</span><span class="p">],</span>
+                    <span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">100.0</span><span class="p">,</span>
+                    <span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;yp&quot;</span><span class="p">],</span>
+                    <span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;t&quot;</span><span class="p">],</span>
+                    <span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;W&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">fout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">struct</span><span class="o">.</span><span class="n">pack</span><span class="p">(</span><span class="s2">&quot;&lt;d&quot;</span><span class="p">,</span> <span class="n">Erest</span> <span class="o">*</span> <span class="mf">1e-6</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;INFO: .dst file </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2"> wrote with N particle: </span><span class="si">{</span><span class="n">step</span><span class="o">.</span><span class="n">N</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

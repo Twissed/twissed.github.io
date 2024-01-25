@@ -1,0 +1,15 @@
+Plotting with the Step class
+============================
+
+Several diagnostics are available with the Step class.
+
+hist1D and hist2D functions
+------------------
+
+.. autofunction:: twissed.Step.hist1D
+
+    
+.. autofunction:: twissed.Step.hist2D
+
+
+.. autofunction:: twissed.Step.plotbeam

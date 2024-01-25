@@ -1,0 +1,119 @@
+.. twissed documentation master file, created by
+   sphinx-quickstart on Wed Apr 26 15:36:15 2023.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to twissed's documentation!
+===================================
+
+|pypi version| |License| |Release|
+
+Overview
+--------
+
+Twissed is a Python package 🐍 that provides a large number of data
+analysis tools for **beam dynamics** and **laser wakefield
+acceleration** simulations.
+
+Twissed is multi-OS (Windows, Linux, Mac) and can be easily installed
+everywhere thanks to its low number of dependencies (numpy, pandas,
+scipy, h5py). It is especially made to run on HPC clusters.
+
+Twissed can read and write data from several sources
+
+-  `FBPIC <https://fbpic.github.io/>`__
+-  `Smilei <https://smileipic.github.io/Smilei/>`__
+-  `Smilei via happi package <https://smileipic.github.io/Smilei/>`__
+-  `TraceWin <https://dacm-logiciels.fr/>`__
+-  `Astra <>`__
+
+Installation
+------------
+
+Requirement
+~~~~~~~~~~~
+
+Python 3.7 or greater
+
+-  Mandatory packages: numpy pandas scipy h5py.
+-  Optional packages: matplotlib seaborn happi(smilei)
+
+.. _installation-1:
+
+Installation
+~~~~~~~~~~~~
+
+-  Mac OS/Linux
+
+.. code:: shell
+
+   python -m pip install twissed
+
+-  Windows
+
+.. code:: shell
+
+   py -m pip install twissed
+
+With the download of the project
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+-  Mac OS/Linux
+
+.. code:: shell
+
+   git clone https://github.com/Twissed/twissed.git
+   python -m pip install -e .
+
+-  Windows
+
+.. code:: shell
+
+   git clone https://github.com/Twissed/twissed.git
+   py -m pip install -e .
+
+Tutorial
+--------
+
+Examples Twissed use are available at
+https://github.com/Twissed/Twissed_tutorial
+
+
+
+.. note::
+
+   This project is under active development.
+
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+
+Contents
+--------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   pages/physics
+   pages/stepclass
+   pages/plotstepclass
+   pages/io
+   pages/launcher
+   pages/noweight
+   pages/todo
+
+
+.. |pypi version| image:: https://img.shields.io/pypi/v/fbpic.svg
+   :target: https://pypi.python.org/pypi/fbpic
+.. |License| image:: https://img.shields.io/badge/License-MIT-blue
+   :target: LICENSE
+.. |Release| image:: https://img.shields.io/github/release-date/Twissed/twissed
+

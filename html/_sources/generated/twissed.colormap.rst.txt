@@ -1,0 +1,29 @@
+﻿twissed.colormap
+================
+
+.. automodule:: twissed.colormap
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      Cmap
+   
+   
+
+   
+   
+   
+
+
+

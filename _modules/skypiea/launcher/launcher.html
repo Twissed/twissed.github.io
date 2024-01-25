@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>skypiea.launcher.launcher &mdash; skypiea 1.50 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            skypiea
+          </a>
+              <div class="version">
+                1.50
+              </div>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/physics.html">Useful formulas</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/stepclass.html">Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/plotstepclass.html">Plotting with the Step class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/io.html">Read and write data</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/launcher.html">Automatic launchers and runs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/noweight.html">No weight methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../pages/todo.html">Todo</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">skypiea</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">skypiea.launcher.launcher</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for skypiea.launcher.launcher</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Python package for beam dynamics analysis in laser-plasma acceleration</span>
+<span class="sd">Author: D. Minenna</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">scipy.constants</span> <span class="k">as</span> <span class="nn">const</span>
+<span class="kn">import</span> <span class="nn">shutil</span>
+
+<span class="c1"># skypiea</span>
+<span class="kn">from</span> <span class="nn">..version</span> <span class="kn">import</span> <span class="n">__version__</span><span class="p">,</span> <span class="n">__codes_available__</span>
+
+<span class="n">keys_getdataRun</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;dt&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;timestep&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;species&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;charge&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;N&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_med&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_std&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_mad&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_std_perc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_mad_perc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;g_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;g_med&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;g_std&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;g_mad&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;betaz_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sigma_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sigma_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sigma_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sigma_xp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sigma_yp&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;x_divergence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y_divergence&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;x_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;z_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xx_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yy_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ux_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;uy_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;uz_avg&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xp_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yp_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xpxp_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ypyp_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;xxp_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;yyp_ave&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_rms_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_rms_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_rms_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_norm_rms_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_norm_rms_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_norm_rms_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_norm_rms_4D&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;emit_norm_rms_6D&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beta_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beta_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;beta_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gamma_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gamma_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gamma_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;alpha_x&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;alpha_y&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;alpha_z&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_hist_yaxis&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_hist_xaxis&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_hist_peak&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Ek_hist_fwhm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;x_dispersion&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;y_dispersion&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span> <span class="nf">make_executable</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">mode</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">stat</span><span class="p">(</span><span class="n">path</span><span class="p">)</span><span class="o">.</span><span class="n">st_mode</span>
+    <span class="n">mode</span> <span class="o">|=</span> <span class="p">(</span><span class="n">mode</span> <span class="o">&amp;</span> <span class="mo">0o444</span><span class="p">)</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span>  <span class="c1"># copy R bits to X</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="Run"><a class="viewcode-back" href="../../../pages/launcher.html#skypiea.Run">[docs]</a><span class="k">class</span> <span class="nc">Run</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run class.</span>
+
+<span class="sd">    Create a run from given scripts. The run will be created in the folder `/directory/Run_id`.</span>
+
+<span class="sd">    Main function are `addfile` and `save`.</span>
+<span class="sd">    Each script added with `addfile` will be save in a pandas dataframe named `df_ini_id.csv`.</span>
+
+<span class="sd">    Usage</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    .. code-block:: python</span>
+
+<span class="sd">        # Initiate new run</span>
+<span class="sd">        run = skypiea.Run(&#39;Skypiea Run&#39;,</span>
+<span class="sd">                        directory=os.getcwd(),</span>
+<span class="sd">                        id=0,</span>
+<span class="sd">                        # Add to dict:</span>
+<span class="sd">                        author=&#39;Damien&#39;,</span>
+<span class="sd">                        description=&#39;Run for test&#39;)</span>
+
+<span class="sd">        # Add file to run</span>
+<span class="sd">        filename = &quot;run.sh&quot;</span>
+<span class="sd">        filepath = os.path.join(directory, &quot;run_fbpic_topaze.sh&quot;)</span>
+<span class="sd">        run.addfile(filename,</span>
+<span class="sd">                    filepath,</span>
+<span class="sd">                    # Add to dict:</span>
+<span class="sd">                    accronyme=&quot;Skytest&quot;,</span>
+<span class="sd">                    slurm_n_core=20,</span>
+<span class="sd">                    slurm_T_cputime=84000,</span>
+<span class="sd">                    scriptpath = os.path.join(run.folderpath, &quot;script_fbpic.py&quot;))</span>
+
+<span class="sd">        # Add file to run</span>
+<span class="sd">        filename = &quot;script_fbpic.py&quot;</span>
+<span class="sd">        filepath = os.path.join(directory, &quot;script_fbpic.py&quot;)</span>
+<span class="sd">        run.addfile(filename,</span>
+<span class="sd">                    filepath,</span>
+<span class="sd">                    # Add to dict:</span>
+<span class="sd">                    a0 = 1.3,</span>
+<span class="sd">                    w0 = 20.9e-6,</span>
+<span class="sd">                    taua = 2.5e-14,</span>
+<span class="sd">                    zfoc = 3.6e-03,</span>
+<span class="sd">                    z0 = -30.6*1e-6,</span>
+<span class="sd">                    )</span>
+
+<span class="sd">        # Create df_ini_00000000.csv file</span>
+<span class="sd">        run.save()</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">projectname</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">directory</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">source</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Please select an available source: </span><span class="si">{</span><span class="n">__codes_available__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">skypieaversion</span> <span class="o">=</span> <span class="n">__version__</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">projectname</span> <span class="o">=</span> <span class="n">projectname</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">directory</span> <span class="o">=</span> <span class="n">directory</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="nb">id</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+
+            <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;Run_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">folderpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">directory</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">folder</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">createfolder</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">date</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y/%m/</span><span class="si">%d</span><span class="s2"> %H:%M:%S:</span><span class="si">%f</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">addfile</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">filepath</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filepath</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;{{&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;}}&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
+
+        <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;{{id}}&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">))</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;{{&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;}}&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">filename</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;{{&quot;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;Warning missing argument: &quot;</span>
+                <span class="o">+</span> <span class="n">text</span><span class="p">[</span><span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;{{&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">2</span> <span class="p">:</span> <span class="n">text</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;}}&quot;</span><span class="p">)]</span>
+                <span class="o">+</span> <span class="s2">&quot;     in file: &quot;</span>
+                <span class="o">+</span> <span class="n">filename</span>
+            <span class="p">)</span>
+
+        <span class="n">copypath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folderpath</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">copypath</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="n">make_executable</span><span class="p">(</span><span class="n">copypath</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">createfolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folderpath</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Folder (variable folderpath) created: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">folderpath</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">series</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folderpath</span><span class="p">,</span> <span class="s2">&quot;df_ini_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+        <span class="n">series</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Data series saved: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">removefolder</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">folderpath</span><span class="p">)</span></div>
+
+
+<span class="k">class</span> <span class="nc">Launcher_all</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">keys</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="vm">__dict__</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+    <span class="k">def</span> <span class="nf">addrun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run</span><span class="p">):</span>
+        <span class="c1"># self.df = self.df.append(run.__dict__,ignore_index=True) # deprecated !</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">run</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">)],</span>
+                <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+
+<div class="viewcode-block" id="Launcher"><a class="viewcode-back" href="../../../pages/launcher.html#skypiea.Launcher">[docs]</a><span class="k">class</span> <span class="nc">Launcher</span><span class="p">(</span><span class="n">Launcher_all</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Main launcher class&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">cmdrun</span><span class="o">=</span><span class="s2">&quot;ccc_msub &quot;</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">infty</span><span class="p">):</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_ini.csv&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataframe saved: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">list_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_folder</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">limit</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;run_all.sh&quot;</span><span class="p">)</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#!/bin/bash </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_folder</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;cd &quot;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cmdrun</span><span class="si">}</span><span class="s2">run.sh </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;cd .. </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">make_executable</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filemax</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">list_folder</span><span class="p">)</span> <span class="o">/</span> <span class="n">limit</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">filemax</span><span class="p">:</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;run_all_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">j</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.sh&quot;</span><span class="p">)</span>
+                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#!/bin/bash </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">limit</span><span class="p">):</span>
+                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                            <span class="s2">&quot;cd &quot;</span>
+                            <span class="o">+</span> <span class="n">list_folder</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cmdrun</span><span class="si">}</span><span class="s2">run.sh </span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="o">+</span> <span class="s2">&quot;cd .. </span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">make_executable</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LauncherGA"><a class="viewcode-back" href="../../../pages/launcher.html#skypiea.LauncherGA">[docs]</a><span class="k">class</span> <span class="nc">LauncherGA</span><span class="p">(</span><span class="n">Launcher_all</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Launcher for genetic algorithm</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">FIRSTID</span><span class="p">,</span> <span class="n">POP_SIZE</span><span class="p">,</span> <span class="n">nInputs</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">path</span> <span class="o">=</span> <span class="n">path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FIRSTID</span> <span class="o">=</span> <span class="n">FIRSTID</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">POP_SIZE</span> <span class="o">=</span> <span class="n">POP_SIZE</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nInputs</span> <span class="o">=</span> <span class="n">nInputs</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;log.csv&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iGeneration</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;iGeneration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lengthlog</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span>
+                    <span class="nb">int</span><span class="p">,</span>
+                    <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;ids&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lengthlog</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastpop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span>
+                    <span class="nb">map</span><span class="p">(</span>
+                        <span class="nb">float</span><span class="p">,</span>
+                        <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">[</span><span class="s2">&quot;POP&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">lengthlog</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+                        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;[&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;]&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">),</span>
+                    <span class="p">)</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">POP_SIZE</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nInputs</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">iGeneration</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lengthlog</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastids</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lastpop</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">isLastGenEnded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastids</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">for</span> <span class="nb">id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lastids</span><span class="p">:</span>
+                <span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;Run_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+                <span class="n">folderpath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path</span><span class="p">,</span> <span class="n">folder</span><span class="p">)</span>
+                <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="n">folderpath</span><span class="p">,</span> <span class="s2">&quot;df_end_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span>
+                <span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">filename</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Id: </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> finished!&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Id: </span><span class="si">{</span><span class="nb">id</span><span class="si">}</span><span class="s2"> not finished!&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">cmdrun</span><span class="o">=</span><span class="s2">&quot;ccc_msub &quot;</span><span class="p">):</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">path</span>
+        <span class="n">ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]]</span>
+
+        <span class="n">newlog</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;iGeneration&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">iGeneration</span><span class="p">,</span>
+                <span class="s2">&quot;ids&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">ids</span><span class="p">],</span>
+                <span class="s2">&quot;FIRSTID&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">FIRSTID</span><span class="p">,</span>
+                <span class="s2">&quot;POP_SIZE&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">POP_SIZE</span><span class="p">,</span>
+                <span class="s2">&quot;POP&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">POP_SIZE</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">nInputs</span><span class="p">,)))],</span>
+            <span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">newlog</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="n">newlog</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">log_path</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_ini.csv&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dataframe saved: </span><span class="si">{</span><span class="n">filename</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">list_folder</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;folder&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="n">path</span><span class="p">,</span> <span class="s2">&quot;run_all_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iGeneration</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.sh&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#!/bin/bash </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">list_folder</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;cd &quot;</span> <span class="o">+</span> <span class="n">item</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cmdrun</span><span class="si">}</span><span class="s2">run.sh </span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;cd .. </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">make_executable</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="getdatafromrun"><a class="viewcode-back" href="../../../pages/launcher.html#skypiea.getdatafromrun">[docs]</a><span class="k">def</span> <span class="nf">getdatafromrun</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span>
+    <span class="n">timestep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">species</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;electrons&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create df_end_id.csv file.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str, optional): Path to run. Defaults to os.getcwd().</span>
+<span class="sd">        timestep (int, optional): Step time wanted. Defaults to -1 (last one).</span>
+<span class="sd">        source (str, optional) : Set the source of the simulation. If None, will try to find the source from the df_ini_***.csv file. Defaults to None.</span>
+<span class="sd">        species (str, optional) : Name of the beam species. Defaults to &quot;electrons&quot;</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Pandas dataframe with the dict from Step.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">path</span><span class="p">[</span><span class="n">path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Run_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span> <span class="p">:</span> <span class="n">path</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Run_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">12</span><span class="p">])</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="c1"># Find source</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">df_ini_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_ini_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+        <span class="n">df_ini</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">df_ini_path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="s2">&quot;source&quot;</span> <span class="ow">in</span> <span class="n">df_ini</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="s2">&quot;source&quot;</span> <span class="ow">in</span> <span class="n">df_ini</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="n">df_ini</span><span class="p">[</span><span class="s2">&quot;source&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;fbpic&quot;</span>
+
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;fbpic&quot;</span><span class="p">:</span>
+        <span class="n">datapath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;lab_diags&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;happi&quot;</span><span class="p">:</span>
+        <span class="n">datapath</span> <span class="o">=</span> <span class="n">path</span>
+
+    <span class="c1"># Find all timesteps</span>
+    <span class="n">steps</span> <span class="o">=</span> <span class="n">Steps</span><span class="p">(</span><span class="n">directory</span><span class="o">=</span><span class="n">datapath</span><span class="p">,</span> <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="c1"># timestep selection</span>
+    <span class="k">if</span> <span class="n">timestep</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+        <span class="n">timestep</span> <span class="o">=</span> <span class="n">steps</span><span class="o">.</span><span class="n">timesteps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># Creation of the step class</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">Step</span><span class="p">()</span>
+
+    <span class="c1"># Read data</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">steps</span><span class="o">.</span><span class="n">getParticle</span><span class="p">(</span><span class="n">step</span><span class="p">,</span> <span class="n">timestep</span><span class="p">,</span> <span class="n">species</span><span class="o">=</span><span class="n">species</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">N</span> <span class="o">&gt;</span> <span class="mf">10.0</span><span class="p">:</span>
+        <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">step</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys_getdataRun</span><span class="p">}</span>
+        <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;units&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">units</span>
+        <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;info&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span><span class="o">.</span><span class="n">info</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">}</span>
+
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="nb">dict</span><span class="p">)</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_end_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+    <span class="n">df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df</span></div>
+
+
+<span class="k">def</span> <span class="nf">getdata</span><span class="p">(</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">(),</span> <span class="n">timestep</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;df_full.csv&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create df_full.csv file from all Run_*** folders.</span>
+
+<span class="sd">    Inline usage</span>
+<span class="sd">    ------------</span>
+
+<span class="sd">    .. code-block::</span>
+
+<span class="sd">        python -c &quot;import skypiea;skypiea.getdata();&quot;</span>
+
+
+<span class="sd">    Args:</span>
+<span class="sd">        path (str, optional): Path of all Run_*** folders. Defaults to os.getcwd().</span>
+<span class="sd">        timestep (int, optional): timestep selected for data collection. Defaults to -1.</span>
+<span class="sd">        filename (str, optional): Name of the .csv file. Defaults to &#39;df_full.csv&#39;.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        pd.DataFrame: Pandas dataframe with the dict from all Runs.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">df_full</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">list_folder</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Run_&quot;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">list_folder</span><span class="p">:</span>
+        <span class="nb">id</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">folder</span><span class="p">[</span><span class="n">folder</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Run_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">4</span> <span class="p">:</span> <span class="n">folder</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s2">&quot;Run_&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">12</span><span class="p">])</span>
+
+        <span class="n">df_ini_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="s2">&quot;df_ini_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">id</span><span class="p">)</span><span class="o">.</span><span class="n">zfill</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+
+        <span class="n">df_end</span> <span class="o">=</span> <span class="n">getdatafromrun</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">folder</span><span class="p">,</span> <span class="n">timestep</span><span class="o">=</span><span class="n">timestep</span><span class="p">)</span>
+
+        <span class="n">df_run</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">df_ini_path</span><span class="p">,</span> <span class="n">index_col</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">squeeze</span><span class="p">(),</span> <span class="n">df_end</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">df_full</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="n">df_full</span> <span class="o">=</span> <span class="n">df_run</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">df_full</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">df_full</span><span class="o">.</span><span class="n">transpose</span><span class="p">(),</span> <span class="n">df_run</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+
+    <span class="n">filename</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_full.csv&quot;</span><span class="p">)</span>
+    <span class="n">df_full</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">filename</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">df_full</span>
+
+
+<span class="k">def</span> <span class="nf">removelauncher</span><span class="p">(</span><span class="n">path</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">getcwd</span><span class="p">()):</span>
+    <span class="n">list_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Run_&quot;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">folder</span> <span class="ow">in</span> <span class="n">list_run</span><span class="p">:</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">rmtree</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">folder</span><span class="p">))</span>
+
+    <span class="n">list_run</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">path</span><span class="p">)</span> <span class="k">if</span> <span class="n">i</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;run_all&quot;</span><span class="p">)]</span>
+    <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">list_run</span><span class="p">:</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">file</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_ini.csv&quot;</span><span class="p">)):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;df_ini.csv&quot;</span><span class="p">)))</span>
+
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;log.csv&quot;</span><span class="p">)):</span>
+        <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;log.csv&quot;</span><span class="p">)))</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Damien Minenna.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

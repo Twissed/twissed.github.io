@@ -1,0 +1,10 @@
+Step class
+=====
+
+The main class is the ``skypiea.Step`` class.
+
+.. autofunction:: skypiea.Step
+
+
+
+.. autofunction:: skypiea.Step.hist1D

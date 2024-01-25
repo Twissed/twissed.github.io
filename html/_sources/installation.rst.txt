@@ -1,0 +1,24 @@
+Installation
+=====
+
+Requirement
+------------
+
+🔴 Mandatory
+    numpy
+    pandas
+
+⚫ Optional
+    matplotlib
+    seaborn
+    happi
+
+
+Installation
+------------
+
+To use skypiea, you need to install it using:
+
+.. code-block:: console
+
+   (.venv) $ python setup.py install
